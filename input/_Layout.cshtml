@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <meta charset="utf8" />
+        <title>@Context.String(BlogKeys.Title)</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                <a class="navbar-brand" href='@Context.GetLink("/")'>@Context.String(BlogKeys.Title)</a>
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href='@Context.GetLink("/")'>Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href='@Context.GetLink("tags/index.html")'>Catégories</a>
+                    </li>
+                    @{
+                        List<Tuple<string, string>> pages = Context
+                                    .Documents[Blog.Pages]
+                                    .Where(x => x.Bool(BlogKeys.ShowInNavbar, true))
+                                    .Where(x => x.FilePath(Keys.RelativeFilePath)?.FullPath?.StartsWith("index") == (bool?)false)
+                                    .Select(x => Tuple.Create(x.WithoutSettings.String(Keys.Title), Context.GetLink(x)))
+                                    .Where(x => !string.IsNullOrEmpty(x.Item1))
+                                    .OrderBy(x => x.Item1)
+                                    .ToList();
+                        foreach(Tuple<string, string> page in pages)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@(page.Item2)">@(page.Item1)</a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Blog Entries Column -->
+                <div class="col-md-8">
+                    @RenderBody()
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Categories -->
+                    <h5>Categories</h5>
+                    @foreach (IDocument tagDocument in Documents[Blog.Tags]
+                                .GroupBy(x => x.String(BlogKeys.Tag)).Select(x => x.Where(p => p.Get<int>(Keys.CurrentPage) == 1).First())
+                                .OrderByDescending(x => x.Get<int>(Keys.TotalItems)).Take(10))
+                    {
+                        string tag = tagDocument.String(BlogKeys.Tag);
+                        string postCount = tagDocument.String(Keys.TotalItems);
+                        <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-secondary btn-sm">
+                            @tag <span class="badge badge-light">@postCount</span>
+                        </a>
+                    }
+
+                    <!-- Feeds -->
+                    <h5>Abonnements</h5>
+                    <a class="btn btn-secondary" href="@Context.GetLink(Context.String(BlogKeys.RssPath))">
+                        <i class="fa fa-rss"> Rss</i>
+                    </a>
+                    <a class="btn btn-secondary" href="@Context.GetLink(Context.String(BlogKeys.AtomPath))">
+                        <i class="fa fa-rss"> Atom</i>
+                    </a>
+                </div>
+               
+                </div>
+            </div>
+         </div>
+         @Html.Partial("_Footer")
+    </body>
+</html>
+@if(Model.Bool(Keys.HasPreviousPage)) {
+    <a href="@(Context.GetLink(Model.Document(Keys.PreviousPage)))"><span aria-hidden="true">&larr;</span> Newer</a> 
+} 
+
+@if(Model.Bool(Keys.HasNextPage)) {
+    <a href="@(Context.GetLink(Model.Document(Keys.NextPage)))">Older <span aria-hidden="true">&rarr;</span></a> 
+}

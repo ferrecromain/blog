@@ -1,0 +1,11 @@
+#recipe Blog
+#theme BlogTemplate
+
+
+// Customize your settings and add new ones here
+Settings[Keys.Host] = "ferrecromain.github.io";
+// Settings[Keys.LinkRoot] = "/blog";
+Settings[BlogKeys.Title] = "Le blog de Romain Ferrec";
+// Settings[Keys.LinksUseHttps] = true;
+
+// Add any pipeline customizations here

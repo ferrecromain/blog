@@ -1,0 +1,6 @@
+# Visual Studio
+.vs/
+
+# Wyam
+config.wyam.hash
+config.wyam.dll
