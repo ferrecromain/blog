@@ -1,0 +1,12 @@
+@foreach(var post in Model.DocumentList(Keys.PageDocuments))
+{
+    <div class="card bg-light mb-4">
+        <h2 class="card-header">@post.WithoutSettings.String(BlogKeys.Title)</h2>
+        <div class="card-body">
+            <div class="card-text">@Html.Raw(post.String(BlogKeys.Excerpt))</div>
+            <a class="btn btn-primary" href="@Context.GetLink(post)">Lire l'article</a>
+        </div>
+        <div class="card-footer">Publié le @(post.Get<DateTime>(BlogKeys.Published).ToShortDateString(Context))</div>
+    </div>
+
+}

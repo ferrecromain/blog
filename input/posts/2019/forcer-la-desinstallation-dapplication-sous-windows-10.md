@@ -1,4 +1,4 @@
-Title: Forcer la désinstallation d'application sous Windows 10
+Title: Forcer la désinstallation d'applications sous Windows 10
 Published: 19/02/20
 Tags: Windows
 ---

@@ -45,26 +45,53 @@
 
                 <div class="col-md-4">
                     <!-- Categories -->
-                    <h5>Categories</h5>
-                    @foreach (IDocument tagDocument in Documents[Blog.Tags]
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                @foreach (IDocument tagDocument in Documents[Blog.Tags]
                                 .GroupBy(x => x.String(BlogKeys.Tag)).Select(x => x.Where(p => p.Get<int>(Keys.CurrentPage) == 1).First())
                                 .OrderByDescending(x => x.Get<int>(Keys.TotalItems)).Take(10))
-                    {
-                        string tag = tagDocument.String(BlogKeys.Tag);
-                        string postCount = tagDocument.String(Keys.TotalItems);
-                        <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-secondary btn-sm">
-                            @tag <span class="badge badge-light">@postCount</span>
-                        </a>
-                    }
+                                {
+                                    string tag = tagDocument.String(BlogKeys.Tag);
+                                    string postCount = tagDocument.String(Keys.TotalItems);
+                                    <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-dark btn-sm">
+                                        @tag <span class="badge badge-light">@postCount</span>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Feeds -->
-                    <h5>Abonnements</h5>
-                    <a class="btn btn-secondary" href="@Context.GetLink(Context.String(BlogKeys.RssPath))">
-                        <i class="fa fa-rss"> Rss</i>
-                    </a>
-                    <a class="btn btn-secondary" href="@Context.GetLink(Context.String(BlogKeys.AtomPath))">
-                        <i class="fa fa-rss"> Atom</i>
-                    </a>
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Abonnements</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="@Context.GetLink(Context.String(BlogKeys.RssPath))">
+                                    <i class="fa fa-rss"> Rss</i>
+                                </a>
+                                <a class="btn btn-dark" href="@Context.GetLink(Context.String(BlogKeys.AtomPath))">
+                                    <i class="fa fa-rss"> Atom</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social medias -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Réseaux sociaux</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="https://www.linkedin.com/in/romain-ferrec/" target="_blank">
+                                    <i class="fa fa-linkedin-square fa-2x"></i>
+                                </a>
+                                <a class="btn btn-dark" href="https://github.com/ferrecromain" target="_blank">
+                                    <i class="fa fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                   
                 </div>
                
                 </div>

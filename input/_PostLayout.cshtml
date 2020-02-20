@@ -4,22 +4,25 @@
     var Tags = Model.Get<string[]>(BlogKeys.Tags) ?? new string[] {};
 }
 
+<div class="card bg-light mb-4">
+    <div class="card-header">
+        <h2>@Model.WithoutSettings.String(BlogKeys.Title)</h2>
+        <em>Publié le @Published.ToShortDateString()</em>
+    </div>
+    <div class="card-body">
+        <div class="card-text">
+            @RenderBody()
+        </div>
+    </div>
+    <div class="card-footer">
+        @foreach (string tag in Tags.OrderBy(x => x))
+        { 
+            IDocument tagDocument = Documents[Blog.Tags].FirstOrDefault(x => x.String(BlogKeys.Tag)== tag && x.Get<int>(Keys.CurrentPage) == 1); 
+            if(tagDocument != null) 
+            {
+                <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-secondary btn-sm">@tag</a> 
+            } 
+        }
+    </div>
+</div>
 
-<!-- Title -->
-<h1 class="mt-4">@Model.WithoutSettings.String(BlogKeys.Title)</h1>
-<hr>
-
-<!-- Date/Time -->
-<p>Publié le @Published.ToShortDateString()</p>
-<hr>
-
-@RenderBody()
-
-@foreach (string tag in Tags.OrderBy(x => x))
-{ 
-    IDocument tagDocument = Documents[Blog.Tags].FirstOrDefault(x => x.String(BlogKeys.Tag)== tag && x.Get<int>(Keys.CurrentPage) == 1); 
-    if(tagDocument != null) 
-    {
-        <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-secondary btn-sm">@tag</a> 
-    } 
-}
