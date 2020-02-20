@@ -1,5 +1,6 @@
 #recipe Blog
 #theme BlogTemplate
+#n Wyam.Highlight
 
 
 // Customize your settings and add new ones here
@@ -9,3 +10,9 @@ Settings[BlogKeys.Title] = "Le blog de Romain Ferrec";
 // Settings[Keys.LinksUseHttps] = true;
 
 // Add any pipeline customizations here
+
+Pipelines.Add("Highlight",
+    ReadFiles("*.md"),
+    Highlight(),
+    WriteFiles(".html")
+);
