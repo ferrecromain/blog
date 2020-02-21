@@ -5,35 +5,42 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/tomorrow-night-bright.css">
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
-            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+            <div class="container">
                 <a class="navbar-brand" href='@Context.GetLink("/")'>@Context.String(BlogKeys.Title)</a>
-                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href='@Context.GetLink("/")'>Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href='@Context.GetLink("tags/index.html")'>Catégories</a>
-                    </li>
-                    @{
-                        List<Tuple<string, string>> pages = Context
-                                    .Documents[Blog.Pages]
-                                    .Where(x => x.Bool(BlogKeys.ShowInNavbar, true))
-                                    .Where(x => x.FilePath(Keys.RelativeFilePath)?.FullPath?.StartsWith("index") == (bool?)false)
-                                    .Select(x => Tuple.Create(x.WithoutSettings.String(Keys.Title), Context.GetLink(x)))
-                                    .Where(x => !string.IsNullOrEmpty(x.Item1))
-                                    .OrderBy(x => x.Item1)
-                                    .ToList();
-                        foreach(Tuple<string, string> page in pages)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" href="@(page.Item2)">@(page.Item1)</a>
-                            </li>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMainMenu">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href='@Context.GetLink("/")'>Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href='@Context.GetLink("tags/index.html")'>Catégories</a>
+                        </li>
+                        @{
+                            List<Tuple<string, string>> pages = Context
+                                        .Documents[Blog.Pages]
+                                        .Where(x => x.Bool(BlogKeys.ShowInNavbar, true))
+                                        .Where(x => x.FilePath(Keys.RelativeFilePath)?.FullPath?.StartsWith("index") == (bool?)false)
+                                        .Select(x => Tuple.Create(x.WithoutSettings.String(Keys.Title), Context.GetLink(x)))
+                                        .Where(x => !string.IsNullOrEmpty(x.Item1))
+                                        .OrderBy(x => x.Item1)
+                                        .ToList();
+                            foreach(Tuple<string, string> page in pages)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" href="@(page.Item2)">@(page.Item1)</a>
+                                </li>
+                            }
                         }
-                    }
-                </ul>
+                    </ul>
+                </div>
             </div>
         </nav>
         <div class="container">
