@@ -3,7 +3,7 @@ Published: 19/02/20
 Tags: Windows
 ---
 
-De puis l'arrivée de Windows 10, nous pouvons profiter des **applications universelles**,
+Depuis l'arrivée de Windows 10, nous pouvons profiter des **applications universelles**,
 telechargeables depuis une logithèque unique, le fameux 
 [Microsoft Store](https://www.microsoft.com/fr-fr/store/apps/windows).
 
