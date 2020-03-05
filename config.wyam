@@ -6,6 +6,7 @@
 // Customize your settings and add new ones here
 Settings[Keys.Host] = "ferrecromain.github.io";
 Settings[Keys.LinkRoot] = "/blog";
+Settings[BlogKeys.MarkdownPrependLinkRoot] = true;
 Settings[BlogKeys.Title] = "Romain Ferrec";
 Settings[Keys.LinksUseHttps] = true;
 
