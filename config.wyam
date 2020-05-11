@@ -1,6 +1,5 @@
 #recipe Blog
 #theme BlogTemplate
-#n Wyam.Highlight
 
 
 // Customize your settings and add new ones here
@@ -9,11 +8,3 @@ Settings[Keys.LinkRoot] = "/blog";
 Settings[BlogKeys.MarkdownPrependLinkRoot] = true;
 Settings[BlogKeys.Title] = "Romain Ferrec";
 Settings[Keys.LinksUseHttps] = true;
-
-// Add any pipeline customizations here
-
-Pipelines.Add("Highlight",
-    ReadFiles("*.html"),
-    Highlight(),
-    WriteFiles(".html")
-);
