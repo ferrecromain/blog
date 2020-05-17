@@ -65,7 +65,6 @@ public class FelinesController : ControllerBase
     /// Get felines that match the pattern
     /// </summary>
     /// <param name="pattern">Search pattern </param>
-    /// <returns>The matching felines</returns>
     /// <response code="200">Returns the matching felines</response>
     /// <response code="400">Request cannot be completed, check output for more details</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
