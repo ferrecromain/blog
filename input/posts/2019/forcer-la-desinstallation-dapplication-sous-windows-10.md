@@ -20,7 +20,7 @@ Get-AppxPackage | select Name
 ```
 
 Dans la liste des resultats, cherchez le nom de l'application que vous souhaitez voir disparaitre
-(dans notre exemple *Microsoft.ZuneVideo* qui correspond à *Films et TV*).
+(dans notre exemple ```Microsoft.ZuneVideo``` qui correspond à *Films et TV*).
 Muni de celui ci, la commande suivante permet de la désinstaller :
 
 ``` powershell
