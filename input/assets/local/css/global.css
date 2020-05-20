@@ -1,4 +1,4 @@
-p > code {
+p > code, td > code {
     color: #212529;
     background-color: #dfdddd;
 }
