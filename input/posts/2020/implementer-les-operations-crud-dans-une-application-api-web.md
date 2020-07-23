@@ -27,7 +27,7 @@ Nous pouvons exposer les données liées à notre modèle par les deux points de
 /// <response code="200">The matching user</response>
 /// <response code="404">Requested user was not found</response>
 /// <response code="400">Request cannot be completed, check output for more details</response>
-[HttpGet("{id:int}")]
+[HttpGet("{id}")]
 [ProducesResponseType(StatusCodes.Status200OK)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -97,7 +97,7 @@ En cas de succés, il est recommandé de renvoyer un corps de réponse vide avec
 /// <response code="201">User has been updated successfuly</response>
 /// <response code="404">Requested user was not found</response>
 /// <response code="400">Request cannot be completed, check output for more details</response>
-[HttpPut("{id:int}"})]
+[HttpPut("{id}"})]
 [ProducesResponseType(StatusCodes.Status204NoContent)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -125,7 +125,7 @@ En cas de succés, il est recommandé de renvoyer un corps de réponse vide avec
 /// <response code="204">User has been deleted successfuly</response>
 /// <response code="404">Requested user was not found</response>
 /// <response code="400">Request cannot be completed, check output for more details</response>
-[HttpDelete("{id:int}")]
+[HttpDelete("{id}")]
 [ProducesResponseType(StatusCodes.Status204NoContent)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
