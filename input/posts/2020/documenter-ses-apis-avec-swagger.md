@@ -1,6 +1,6 @@
 Title: Documenter ses APIs avec Swagger
 Published: 06/05/20
-Tags: [Développement, ASP]
+Tags: [ASP.NET web API]
 ---
 
 Swagger est une collection d'outils permettant de concevoir, générer et **documenter** des API REST. Il respose sur la spécification *OpenAPI* et est implémenté en ASP.NET Core à travers *SwashBuckle*.

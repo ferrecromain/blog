@@ -1,6 +1,6 @@
 Title: Utiliser la validation de modèle d'ASP
 Published: 15/05/20
-Tags: [Développement, ASP]
+Tags: [ASP.NET]
 ---
 
 Dans une application Web, il est **primordial** de vérifier les informations soumise par le client vers le serveur, afin de satisfaire les **exigences métier** et garantir la **cohérence des données**.

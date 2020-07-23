@@ -1,6 +1,6 @@
 Title: Gérer ses processus en cours sous Windows avec CMD
 Published: 28/03/20
-Tags: [Administration, Windows]
+Tags: [CMD]
 ---
 
 Nous allons voir quelques commandes indispensables pour gérer les différentes applications et processus en cours sous Windows avec l'invite de commande, au lieu de passer par le traditionnel *Gestionnaire des tâches*.
