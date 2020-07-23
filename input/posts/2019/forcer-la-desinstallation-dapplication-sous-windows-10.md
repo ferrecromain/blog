@@ -15,7 +15,7 @@ besoin particulier en la matière ? Comment faire pour se séparer des applicati
 Tout d'abord, nous allons commencer par obtenir la liste des applications installées sur le 
 système. Ouvrez pour cela une session **Powershell**, et saisissez la commande suivante :
 
-``` powershell
+```powershell
 Get-AppxPackage | select Name
 ```
 
@@ -23,7 +23,7 @@ Dans la liste des resultats, cherchez le nom de l'application que vous souhaitez
 (dans notre exemple ```Microsoft.ZuneVideo``` qui correspond à *Films et TV*).
 Muni de celui ci, la commande suivante permet de la désinstaller :
 
-``` powershell
+```powershell
 Get-AppxPackage Microsoft.ZuneVIdeo | Remove-AppxPackage
 ```
 
