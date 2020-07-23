@@ -1,18 +1,30 @@
 @{ 
     var postPages = Model.DocumentList(Keys.PageDocuments).OrderByDescending(x => x.Get<DateTime>(BlogKeys.Published)); 
-    string tag = Model.String(BlogKeys.Tag).ToLowerInvariant().Replace(' ', '-'); 
-    tag = tag.StartsWith(".") ? tag.Substring(1) : tag; 
+    string tag = Model.String(BlogKeys.Tag);
 }
-
-@foreach(var post in postPages)
-{
-    <div class="card bg-light mb-4">
-        <h2 class="card-header">@post.WithoutSettings.String(BlogKeys.Title)</h2>
-        <div class="card-body">
-            <div class="card-text">@Html.Raw(post.String(BlogKeys.Excerpt))</div>
-            <a class="btn btn-primary" href="@Context.GetLink(post)">Lire l'article</a>
+<div class="card bg-light mb-4">
+    <h2 class="card-header">Articles de la catégorie "@tag"</h2>
+    <div class="card-body">
+        <div class="card-text">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nom de l'article</th>
+                        <th style="white-space: nowrap">Date de publication</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var post in postPages)
+                    {
+                        <tr>
+                            <td>@post.WithoutSettings.String(BlogKeys.Title)</td>
+                            <td>@(post.Get<DateTime>(BlogKeys.Published).ToShortDateString(Context))</td>
+                            <td style="white-space: nowrap"><a class="btn btn-primary" href="@Context.GetLink(post)">Lire l'article</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-        <div class="card-footer">Publié le @(post.Get<DateTime>(BlogKeys.Published).ToShortDateString(Context))</div>
     </div>
-
-}
+</div>
