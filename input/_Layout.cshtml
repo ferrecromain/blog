@@ -68,7 +68,7 @@
                                     .OrderBy(x => x.Get<string>(Keys.Title)).Take(10))
                                     {
                                         string tag = tagDocument.String(BlogKeys.Tag);
-                                        <option value="@Context.GetLink(tagDocument)">
+                                        <option value="@(Context.GetLink(tagDocument) + ".html")">
                                             @tag
                                         </option>
                                     }

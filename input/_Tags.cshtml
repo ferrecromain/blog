@@ -20,7 +20,7 @@
                         <tr>
                             <td>@tag</td>
                             <td>@postCount</td>
-                            <td style="white-space: nowrap"><a class="btn btn-primary" href="@Context.GetLink(tagDocument)">Lister les articles</a></td>
+                            <td style="white-space: nowrap"><a class="btn btn-primary" href="@(Context.GetLink(tagDocument) + ".html")">Lister les articles</a></td>
                         </tr>
                     }
                 <tbody>
