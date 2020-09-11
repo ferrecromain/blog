@@ -31,7 +31,7 @@ Nous pouvons exposer les données liées à notre modèle par les deux points de
 [ProducesResponseType(StatusCodes.Status200OK)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
-public IActionResult Get(int id)
+public async IActionResult Get(int id)
 {
     UserModel user = await _userQueryRepository.GetAsync(id);
 
@@ -101,7 +101,7 @@ En cas de succés, il est recommandé de renvoyer un corps de réponse vide avec
 [ProducesResponseType(StatusCodes.Status204NoContent)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
-public async IActionResult Post(int id, UserPostDto dto)
+public async IActionResult Put(int id, UserPostDto dto)
 {
     if(user == null)
         return NotFound(NotFoundStrings.EntityNotFound(id));
