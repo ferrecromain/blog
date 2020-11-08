@@ -3,11 +3,28 @@ Published: 25/10/20
 Tags: [Développement]
 ---
 
+Dans cet article, nous allons parcourir les trois types de *fabriques* qui existe, utilisable en fonction du contexte et du besoin afin de réduire principalement la **duplication de code** :
+
+1. [Simple factory](#simple-factory)
+2. [Factory method pattern](#factory-method-pattern)
+3. [Abstract factory pattern](#abstract-factory-pattern)
+
+Pour nos démonstrations, nous partirons sur un système de création de **compte**, avec trois types de compte que l'on regroupera en deux catégories, soit :
+
+1. Professional
+    1. Basic account
+    2. Premium account
+    3. Ultimate account
+2. Personal
+    1. Basic account
+    2. Premium account
+    3. Ultimate account
+
 ### Simple Factory
 
 Son but est d'encapsuler la création d'objets à un seul endroit. Il ne s'agit pas à proprement parler d'un patron de conception.
 
-Dans l'exemple ci dessous, nous disposons d'une **fabrique** de différents types de compte.
+Dans l'exemple ci-dessous, nous disposons d'une **fabrique** de différents types de compte.
 
 ```csharp
 public sealed class AccountFactory
@@ -48,11 +65,11 @@ catch(Exception ex)
 Instanciation d'un nouveau compte de type 'Basic' (classe : 'BasicAccount') réussi
 ```
 
-A noter qu'au lieu d'instancier directement nos modèles, nous pouvons les récuperer par une méthode de service ou d'appel à une base de données.
+A noter qu'au lieu d'instancier directement nos modèles, nous pouvons les récupérer par une méthode de service ou d'appel à une base de données.
 
 ### Factory method pattern
 
-Il permet la création d'objets sans utiliser la classe concrete de l'objet qui sera créé.
+Il permet la création d'objets sans utiliser la classe concrète de l'objet qui sera créé.
 
 Cela est possible en créant les objets à l'aide d'une **méthode de fabrication (factory method)**, qui peut-être :
 * Soit spécifiée dans une interface et implémentée par les classes dépendantes
@@ -148,18 +165,18 @@ public sealed class PersonalAccountFactory : AccountFactory
 }
 ```
 
-Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appellant, et aucune mention de la classe concrête ```BasicAccount``` n'y est présente.
+Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appelant, et aucune mention de la classe concrète ```BasicAccount``` n'y est présente.
 
 ```csharp
  IAccount account = new ProfessionalAccountFactory().GenerateAccount("johndoe@domain.tld", AccountType.Basic);
 Console.WriteLine($"Création du compte nom : {account.Email} et catégorie : {account.Category}");
 ```
 
-Comparé au **Simple Factory**, celà permet repartir les logiques de création de chaque classes au lieu de les concentrer dans une seule et même méthode.
+Comparé au **Simple Factory**, cela permet repartir les logiques de création de chaque classe au lieu de les concentrer dans une seule et même méthode.
 
 ### Abstract factory pattern
 
-La fabrique abstraite fournit un moyen d'encapsuler un ensemble de fabrique de la même thématique.
+La fabrique abstraite fournit un moyen d'**encapsuler un ensemble de fabrique** de la même thématique.
 
 Le code client crée une instance concrète de la fabrique abstraite, puis l'utilise pour créer des objets concrets de la thématique
 
