@@ -4,30 +4,29 @@ Tags: Windows
 ---
 
 Depuis l'arrivée de Windows 10, nous pouvons profiter des **applications universelles**,
-telechargeables depuis une logithèque unique, le fameux 
-[Microsoft Store](https://www.microsoft.com/fr-fr/store/apps/windows).
+téléchargeables depuis le [Microsoft Store](https://www.microsoft.com/fr-fr/store/apps/windows).
 
 Une gamme d'application nous est proposée par défaut tel que *Cartes*, *Enregistreur Vocal* ou
 encore *Photos*.
-Cela dit, quel intêret de disposer d'un logiciel d'édition vidéo si vous n'avez aucun
+Cela dit, quel intérêt de disposer d'un logiciel d'édition vidéo si nous n'avons aucun
 besoin particulier en la matière ? Comment faire pour se séparer des applications inutiles ?
 
-Tout d'abord, nous allons commencer par obtenir la liste des applications installées sur le 
-système. Ouvrez pour cela une session **Powershell**, et saisissez la commande suivante :
+Tout d'abord, nous allons commencer par récupérer la liste des applications installées sur le 
+système. Ouvrons une session **Powershell**, et saisissons la commande suivante :
 
 ```powershell
 Get-AppxPackage | select Name
 ```
 
-Dans la liste des resultats, cherchez le nom de l'application que vous souhaitez voir disparaitre
+Dans la liste des résultats, nous cherchons le **nom de code** de l'application à désinstaller
 (dans notre exemple ```Microsoft.ZuneVideo``` qui correspond à *Films et TV*).
-Muni de celui ci, la commande suivante permet de la désinstaller :
+
+Il nous suffit ensuite d'exécuter la commande :
 
 ```powershell
 Get-AppxPackage Microsoft.ZuneVIdeo | Remove-AppxPackage
 ```
 
-Patientez jusqu'a ce que Powershell vous rende la main afin de saisir une nouvelle commande.
+Une barre de progression apparait en haut du terminal, nous indiquant la progression de la désinstallation.
 
-A présent vous pouvez constater que votre application a bel et bien été désinstallée, et pas
-de panique, si vous souhaitez la réinstaller vous pouvez toujours le faire au moyen du Windows Store !
+Si nous souhaitons la réinstaller ultérieurement, cela est possible en recherchant le nom de l'application depuis **Microsoft Store**.
