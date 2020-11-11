@@ -3,164 +3,104 @@ Published: 25/10/20
 Tags: [Développement]
 ---
 
-Dans cet article, nous allons parcourir les trois types de *fabriques* qui existe, utilisable en fonction du contexte et du besoin afin de réduire principalement la **duplication de code** :
+Dans cet article, nous allons parcourir les trois types de *fabriques* existante. En fonction du contexte et du besoin, elles ont pour principal objectif de réduire la **duplication de code** :
 
 1. [Simple factory](#simple-factory)
 2. [Factory method pattern](#factory-method-pattern)
 3. [Abstract factory pattern](#abstract-factory-pattern)
 
-Pour nos démonstrations, nous partirons sur un système de création de **compte**, avec trois types de compte que l'on regroupera en deux catégories, soit :
-
-1. Professional
-    1. Basic account
-    2. Premium account
-    3. Ultimate account
-2. Personal
-    1. Basic account
-    2. Premium account
-    3. Ultimate account
+Pour chacun de nos exemples, il s'agira de mettre en place une fabrique de création d'un instances de client ou serveur, HTTP ou FTP.
 
 ### Simple Factory
 
-Son but est d'encapsuler la création d'objets à un seul endroit. Il ne s'agit pas à proprement parler d'un patron de conception.
+Son but est d'encapsuler la création d'objets à un seul endroit. Cependant il ne s'agit pas d'un patron de conception.
 
-Dans l'exemple ci-dessous, nous disposons d'une **fabrique** de différents types de compte.
+Dans l'exemple ci-dessous, nous disposons d'une **fabrique** d'applications utilisant le protocole HTTP.
 
 ```csharp
-public sealed class AccountFactory
+public sealed class HttpApplicationFactory
 {
-    public static IAccount CreateAccount(AccountType type, AccountCategory category, string email)
+    public static IClientServerApplication CreateHttpApplication(ApplicationType applicationtype)
     {
-        switch(accountType)
+        switch(applicationtype)
         {
-            case AccountType.Basic:
-                return new BasicAccount(email, category);
-            case AccountType.Premium:
-                return new PremiumAccount(email, category);
-            case AccountType.Ultimate:
-                return new UltimateAccount(email, category);
+            case ApplicationType.Client:
+                return new HttpClient();
+            case ApplicationType.Premium:
+                return new HttpServer();
             default:
-                throw new ArgumentException($"Type de compte '{accountType}' non géré");
+                throw new ArgumentException($"Non managed application type {applicationType}");
         }
     }
 }
 ```
 
 Nous pouvons l'utiliser de la manière suivante :
+
 ```csharp
-try
-{
-    AccountType accountType = AccountType.Basic;
-    AccountCategory accountCategory = AccountCategory.Professional
-    IAccount account = AccountFactory.CreateAccount(accountType, accountCategory, "johndoe@domain.tld");
-    Console.WriteLine($"Instanciation d'un nouveau compte de type '{accountType}' (classe : '{account.GetType().Name}') réussi");
-}
-catch(Exception ex)
-{
-    Console.WriteLine(ex.Message);
-}
+HttpApplicationFactory factory = new HttpApplicationFactory();
+IClientServerApplication account = factory.Create(ApplicationType.Client);
 ```
-
-```console
-Instanciation d'un nouveau compte de type 'Basic' (classe : 'BasicAccount') réussi
-```
-
-A noter qu'au lieu d'instancier directement nos modèles, nous pouvons les récupérer par une méthode de service ou d'appel à une base de données.
 
 ### Factory method pattern
 
-Il permet la création d'objets sans utiliser la classe concrète de l'objet qui sera créé.
+Il permet la création d'objets, sans avoir à manipuler lors de l'utilisation, la classe concrète de l'objet qui sera créé.
 
 Cela est possible en créant les objets à l'aide d'une **méthode de fabrication (factory method)**, qui peut-être :
 * Soit spécifiée dans une interface et implémentée par les classes dépendantes
 * Soit implémentée dans une classe de base et surchargée par les classes filles.
 
 ```csharp
-public abstract class AccountFactory
+public abstract class TcpApplicationFactory
 {
     // Factory method
-    public IAccount GenerateAccount(string email, AccountType type)
+    public IClientServerApplication Create(ApplicationType type)
     {
-        IAccount account;
+        IClientServerApplication application;
         switch(type)
         {
-            case AccountType.Basic:
-                account = CreateBasicAccount(email);
+            case ApplicationType.Client:
+                application = CreateClient();
                 break;
-            case AccountType.Premium:
-                account = CreatePremiumAccount(email);
-                break;
-            case AccountType.Ultimate:
-                account = CreateUltimateAccount(email);
+            case ApplicationType.Server:
+                application = CreateServer();
                 break;
             default:
                 throw new NotImplementedException();
         }
 
-        return account;
+        return application;
     }
 
-    public abstract IAccount CreateBasicAccount(string email);
-    public abstract IAccount CreatePremiumAccount(string email);
-    public abstract IAccount CreateUltimateAccount(string email);
+    public abstract IClientServerApplication CreateClient();
+    public abstract IClientServerApplication CreateServer();
 }
 
-public sealed class ProfessionalAccountFactory : AccountFactory
+public sealed class HttpApplicationFactory : TcpApplicationFactory
 {
-    public override IAccount CreateBasicAccount(string email)
+    public override IClientServerApplication CreateClient()
     {
-        // Instanciation of BasicAccount concrete class 
-        return new BasicAccount()
-        { 
-            Email = email, 
-            Category = AccountCategory.Professional 
-        };
+        // Instanciation of HttpClient concrete class 
+        return new HttpClient();
     }
 
-    public override IAccount CreatePremiumAccount(string email)
+    public override IClientServerApplication CreateServer()
     {
-        // Instanciation of PremiumAccount concrete class
-        return new PremiumAccount() 
-        { 
-            Email = email, 
-            Category = AccountCategory.Professional 
-        };
-    }
-
-    public override IAccount CreateUltimateAccount(string email)
-    {
-        // Instanciation of PremiumAccount concrete class
-        return new UltimateAccount() 
-        { 
-            Email = email, 
-            Category = AccountCategory.Professional 
-        };
+        // Instanciation of HttpServer concrete class
+        return new HttpServer();
     }
 }
 
-public sealed class PersonalAccountFactory : AccountFactory
+public sealed class FtpApplicationFactory : TcpApplicationFactory
 {
-    public override IAccount CreateBasicAccount(string email)
+    public override IClientServerApplication CreateClient()
     {
-        return new BasicAccount()
-        { 
-            Email = email, 
-            Category = AccountCategory.Personal 
-        };
+        return new FtpClient();
     }
 
-    public override IAccount CreatePremiumAccount(string email)
+    public override IClientServerApplication CreateServer()
     {
-        return new PremiumAccount() 
-        { 
-            Email = email, 
-            Category = AccountCategory.Personal 
-        };
-    }
-
-    public override IAccount CreateUltimateAccount(string email)
-    {
-        throw new NotImplementedException();
+        return new FtpServer();
     }
 }
 ```
@@ -168,8 +108,7 @@ public sealed class PersonalAccountFactory : AccountFactory
 Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appelant, et aucune mention de la classe concrète ```BasicAccount``` n'y est présente.
 
 ```csharp
- IAccount account = new ProfessionalAccountFactory().GenerateAccount("johndoe@domain.tld", AccountType.Basic);
-Console.WriteLine($"Création du compte nom : {account.Email} et catégorie : {account.Category}");
+ IClientServerApplication account = new FtpServerFactory().Create(ApplicationType.Client);
 ```
 
 Comparé au **Simple Factory**, cela permet repartir les logiques de création de chaque classe au lieu de les concentrer dans une seule et même méthode.
@@ -186,98 +125,66 @@ Le client ne se préoccupe pas de savoir quelle fabrique crée un objet concret,
 /// <summary>
 /// Abstract factory
 /// </summary>
-public abstract class AccountFactory
+public abstract class TcpApplicationFactory
 {
-    public abstract IAccount CreateBasicAccount(string email);
-    public abstract IAccount CreatePremiumAccount(string email);
-    public abstract IAccount CreateUltimateAccount(string email);
+    public abstract IClientServerApplication CreateClient();
+    public abstract IClientServerApplication CreateServer();
 }
 
 #region Concretes factories
-public sealed class ProfessionalAccountFactory : AccountFactory
+public sealed class FtpApplicationFactory : TcpApplicationFactory
 {
-    public override IAccount CreateBasicAccount(string email)
+    public override IClientServerApplication CreateClient()
     {
-        return new BasicAccount()
-        { 
-            Email = email, 
-            Category = AccountCategory.Professional 
-        };
+        return new FtpClient();
     }
 
-    public override IAccount CreatePremiumAccount(string email)
+    public override IClientServerApplication CreateServer()
     {
-        return new PremiumAccount() 
-        { 
-            Email = email, 
-            Category = AccountCategory.Professional 
-        };
-    }
-
-    public override IAccount CreateUltimateAccount(string email)
-    {
-        return new UltimateAccount() 
-        { 
-            Email = email, 
-            Category = AccountCategory.Professional 
-        };
+        return new FtpServer();
     }
 }
 
-public sealed class PersonalAccountFactory : AccountFactory
+public sealed class HttpApplicationFactory : TcpApplicationFactory
 {
-    public override IAccount CreateBasicAccount(string email)
+    public override IClientServerApplication CreateClient()
     {
-        return new BasicAccount()
-        { 
-            Email = email, 
-            Category = AccountCategory.Personal 
-        };
+        // Instanciation of HttpClient concrete class 
+        return new HttpClient();
     }
 
-    public override IAccount CreatePremiumAccount(string email)
+    public override IClientServerApplication CreateServer()
     {
-        return new PremiumAccount() 
-        { 
-            Email = email, 
-            Category = AccountCategory.Personal 
-        };
-    }
-
-    public override IAccount CreateUltimateAccount(string email)
-    {
-        throw new NotImplementedException();
+        // Instanciation of HttpServer concrete class
+        return new HttpServer();
     }
 }
 #endregion
 
 public sealed class Client
 {
-    private AccountFactory _factory { get; set; }
-    public Client(AccountFactory factory)
+    private TcpApplicationFactory _factory { get; set; }
+    public Client(TcpApplicationFactory factory)
     {
         _factory = factory;
     }
 
-    public IAccount CreateAccount(string email, AccountType type)
+    public IClientServerApplication Create(ApplicationType type)
     {
-        IAccount account;
+        IClientServerApplication application;
         switch(type)
         {
-            case AccountType.Basic:
-                account = _factory.CreateBasicAccount(email);
+            case ApplicationType.Client:
+                application = CreateClient();
                 break;
-            case AccountType.Premium:
-                account = _factory.CreatePremiumAccount(email);
-                break;
-            case AccountType.Ultimate:
-                account = _factory.CreateUltimateAccount(email);
+            case ApplicationType.Server:
+                application = CreateServer();
                 break;
             default:
                 throw new NotImplementedException();
         }
 
-        return account;
+        return application;
     }
 }
 ```
@@ -285,7 +192,5 @@ public sealed class Client
 Voici un exemple d'utilisation :
 
 ```csharp
-IAccount account = new Client(new ProfessionalAccountFactory())
-    .CreateAccount("johndoe@domain.tld", AccountType.Basic);
-Console.WriteLine($"Création du compte nom : {account.Email} et catégorie : {account.Category}");
+IClientServerApplication account = new Client(new HttpApplicationFactory()).Create(ApplicationType.Client);
 ```
