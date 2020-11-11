@@ -9,7 +9,7 @@ Dans cet article, nous allons parcourir les trois types de *fabriques* existante
 2. [Factory method pattern](#factory-method-pattern)
 3. [Abstract factory pattern](#abstract-factory-pattern)
 
-Pour chacun de nos exemples, il s'agira de mettre en place une fabrique de création d'un instances de client ou serveur, HTTP ou FTP.
+Pour chacun de nos exemples, il s'agira de mettre en place une fabrique de création d'une instance de client ou serveur, HTTP ou FTP.
 
 ### Simple Factory
 
@@ -108,7 +108,7 @@ public sealed class FtpApplicationFactory : TcpApplicationFactory
 Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appelant, et aucune mention de la classe concrète ```FtpClient``` n'y est présente.
 
 ```csharp
- IClientServerApplication application = new FtpServerFactory().Create(ApplicationType.Client);
+ IClientServerApplication application = new FtpApplicationFactory().Create(ApplicationType.Client);
 ```
 
 Comparé au **Simple Factory**, cela permet repartir les logiques de création de chaque classe au lieu de les concentrer dans une seule et même méthode.
