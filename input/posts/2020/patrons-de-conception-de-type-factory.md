@@ -39,7 +39,7 @@ Nous pouvons l'utiliser de la manière suivante :
 
 ```csharp
 HttpApplicationFactory factory = new HttpApplicationFactory();
-IClientServerApplication account = factory.Create(ApplicationType.Client);
+IClientServerApplication application = factory.Create(ApplicationType.Client);
 ```
 
 ### Factory method pattern
@@ -105,10 +105,10 @@ public sealed class FtpApplicationFactory : TcpApplicationFactory
 }
 ```
 
-Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appelant, et aucune mention de la classe concrète ```BasicAccount``` n'y est présente.
+Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appelant, et aucune mention de la classe concrète ```FtpClient``` n'y est présente.
 
 ```csharp
- IClientServerApplication account = new FtpServerFactory().Create(ApplicationType.Client);
+ IClientServerApplication application = new FtpServerFactory().Create(ApplicationType.Client);
 ```
 
 Comparé au **Simple Factory**, cela permet repartir les logiques de création de chaque classe au lieu de les concentrer dans une seule et même méthode.
@@ -192,5 +192,5 @@ public sealed class Client
 Voici un exemple d'utilisation :
 
 ```csharp
-IClientServerApplication account = new Client(new HttpApplicationFactory()).Create(ApplicationType.Client);
+IClientServerApplication application = new Client(new HttpApplicationFactory()).Create(ApplicationType.Client);
 ```
