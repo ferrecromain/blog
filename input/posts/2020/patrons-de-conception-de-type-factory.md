@@ -26,7 +26,7 @@ public sealed class HttpApplicationFactory
         {
             case ApplicationType.Client:
                 return new HttpClient();
-            case ApplicationType.Premium:
+            case ApplicationType.Server:
                 return new HttpServer();
             default:
                 throw new ArgumentException($"Non managed application type {applicationType}");
