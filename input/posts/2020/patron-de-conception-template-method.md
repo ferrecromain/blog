@@ -38,7 +38,7 @@ public abstract class CustomerRegister
     }
 
     public abstract void Check(CustomerModel customer);
-    public abstract void Store(CustomerModel email);
+    public abstract void Store(CustomerModel customer);
     public abstract void SendEmail(CustomerModel customer);
 }
 
