@@ -10,16 +10,16 @@ Certaines de ces étapes pouvant être implémentées dans des sous-classes pour
 
 ### Exemple
 
-Dans l'exemple ci-dessous, nous avons une société qui dispose de deux établissements : un *casino* et un *restaurant*.
-La création d'un nouveau compte sur l'un d'entre eux donne lieu à une **succession d'étapes** :
+Dans l'exemple ci-dessous, nous avons une société disposant de deux établissements : un *casino* et un *restaurant*.
+La création d'un nouveau compte sur l'un ou l'autre se matérialise par une **succession d'étapes** :
 
 1. Vérification des informations
 2. Enregistrement en base de données
 3. Envoi d'un courriel de bienvenue
 
-Ces étapes doivent donc **être executé dans le même ordre** quel que soit l'établissement, mais chacun à sa façon de les implémenter.
+Ces étapes doivent donc **être executé dans le même ordre** quel que soit l'établissement, cependant chacun à sa façon de les implémenter.
 
-*Note : ```SendEmail``` et ```Store``` n'ont pas implémentées dans les sous-classes pour la démonstration.*
+*Note : ```SendEmail``` et ```Store``` n'ont pas été implémentées dans les sous-classes pour aller à l'essentiel.*
 
 ```csharp
 /// <summary>
@@ -45,7 +45,7 @@ public abstract class CustomerRegister
 /// <summary>
 /// CasinoCustomerRegister concrete class
 /// </summary>
-    public sealed class CasinoCustomerRegister : CustomerRegister
+public sealed class CasinoCustomerRegister : CustomerRegister
 {
     public override void Check(CustomerModel customer)
     {
@@ -93,8 +93,8 @@ public sealed class RestaurantCustomerRegister : CustomerRegister
 }
 ```
 
-Ci dessous, nous nous attendons à ce que l'inscription du nouveau client soit **rejeté**, en raison de son **age** (```CheckAge(customer.Age, AgeRule.OfAge)```).
-En revanche il lui est tout à fait permi de s'inscrire au restaurant.
+Ci dessous, nous nous attendons à ce que l'inscription du nouveau client soit **rejeté**, du fait de son **age** (```CheckAge(customer.Age, AgeRule.OfAge)```).
+En revanche il lui est tout à fait permis de s'inscrire au restaurant.
 
 ```csharp
 CustomerModel customer = new CustomerModel() 
