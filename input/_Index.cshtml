@@ -1,4 +1,4 @@
-@foreach(var post in Model.DocumentList(Keys.PageDocuments))
+@foreach(IDocument post in Model.DocumentList(Keys.PageDocuments))
 {
     <div class="card bg-light mb-4">
         <h2 class="card-header">@post.WithoutSettings.String(BlogKeys.Title)</h2>
@@ -10,3 +10,30 @@
     </div>
 
 }
+
+<ul class="pagination justify-content-center">
+    @if(Model.Bool(Keys.HasPreviousPage)) 
+    {
+        <li class="page-item">
+            <a href="@(Context.GetLink(Model.Document(Keys.PreviousPage)))" class="page-link">Page précédente</a>
+        </li>
+    }
+    else
+    {
+        <li class="page-item disabled">
+            <a href="#" class="page-link">Page précédente</a>
+        </li>
+    }
+    @if(Model.Bool(Keys.HasNextPage)) 
+    {
+        <li class="page-item">
+            <a href="@(Context.GetLink(Model.Document(Keys.NextPage)))" class="page-link">Page suivante</a>
+        </li>
+    }
+    else
+    {
+        <li class="page-item disabled">
+            <a href="#" class="page-link">Page suivante</a>
+        </li>
+    }
+</ul>
