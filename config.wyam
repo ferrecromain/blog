@@ -6,5 +6,8 @@
 Settings[Keys.Host] = "ferrecromain.github.io";
 Settings[Keys.LinkRoot] = "/blog";
 Settings[BlogKeys.MarkdownPrependLinkRoot] = true;
+Settings[BlogKeys.GenerateArchive] = false;
 Settings[BlogKeys.Title] = "Romain Ferrec";
+Settings[BlogKeys.IndexPaging] = true;
+Settings[BlogKeys.IndexPageSize] = 5;
 Settings[Keys.LinksUseHttps] = true;
