@@ -1,0 +1,308 @@
+﻿
+<html>
+    <head>
+        <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="msvalidate.01" content="398D7F3FA72C77FA46683F7FA8C5D9B4" />
+        <title>Utiliser la validation de mod&#xE8;le d&#x27;ASP | Romain Ferrec</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/tomorrow-night-bright.css">
+        <link rel="stylesheet" href="/assets/local/css/global.css">
+        <link rel="stylesheet" href="/assets/lib/highlightjs/vs2015.css">
+        <script src="/assets/lib/highlightjs/highlight.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+            <div class="container">
+                <a class="navbar-brand" href='/'>Romain Ferrec</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMainMenu">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href='/'>Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href='/tags'>Catégories</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Blog Entries Column -->
+                <div class="col-md-8">
+                    
+<div class="card bg-light mb-4">
+    <div class="card-header">
+        <h2>Utiliser la validation de mod&#xE8;le d&#x27;ASP</h2>
+        <em>Publié le 15/05/2020</em>
+    </div>
+    <div class="card-body">
+        <div class="card-text">
+            <p>Dans une application Web, il est <strong>primordial</strong> de vérifier les informations soumise par le client vers le serveur, afin de satisfaire les <strong>exigences métier</strong> et garantir la <strong>cohérence des données</strong>.</p>
+<p>Le <strong>framework ASP</strong> dispose de son propre système de validation. Dans la pipeline d'execution d'une requête HTTP, celui ci est executé après la <a href="https://docs.microsoft.com/fr-fr/aspnet/core/mvc/models/model-binding">liaison de données</a> et avant l'action d'un contrôleur.</p>
+<h3 id="validation-de-propriete">Validation de propriété</h3>
+<p>Pour effectuer une validation sur une propriété, nous utilisons les <strong>attributs de validations</strong>.  <a href="https://docs.microsoft.com/fr-fr/dotnet/api/system.componentmodel.dataannotations">Parmi ceux disponible dans .NET</a>, en voici quelques-uns fréquement utilisés :</p>
+<table class="table">
+<thead>
+<tr>
+<th>Nom</th>
+<th>Description</th>
+<th>Exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Required</td>
+<td>La valeur est requise</td>
+<td><code>[Required]</code></td>
+</tr>
+<tr>
+<td>StringLength</td>
+<td>La longueur de chaîne est limité à <em>n</em> caractères</td>
+<td><code>[StringLength(20)]</code></td>
+</tr>
+<tr>
+<td>Range</td>
+<td>La valeur doit être comprise dans l'intervalle</td>
+<td><code>[Range(1, int.MaxValue)]</code></td>
+</tr>
+<tr>
+<td>RegularExpression</td>
+<td>La valeur doit satisfaire l'expression régulière</td>
+<td><code>[RegularExpression(&#64;&quot;[A-Za-z0-9]+&quot;)</code></td>
+</tr>
+<tr>
+<td>MinLength et MaxLength</td>
+<td>La valeur doit être au moins ou au plus égale à <em>n</em></td>
+<td><code>[MinLength(4)]</code></td>
+</tr>
+</tbody>
+</table>
+<p>Prenons un exemple, et définissons un modèle de transfert pour un utilisateur souhaitant mettre à jour ses informations :</p>
+<pre><code class="language-csharp">public class User
+{
+    [Required]
+    public string FirstName { get; set; }
+    [Required]
+    public string LastName { get; set; }
+    [Phone, Required]
+    public string CellPhone { get; set; }
+    [Phone]
+    public string HomePhone { get; set; }
+    [Required]
+    public DateTime BirthDay { get; set; }
+}
+</code></pre>
+<p>Une fois l'application lancée, nous lui soumettons le corps de requête suivant :</p>
+<pre><code class="language-json">{
+  &quot;firstName&quot;: &quot;&quot;,
+  &quot;lastName&quot;: &quot;&quot;,
+  &quot;homePhone&quot;: &quot;toto&quot;
+}
+</code></pre>
+<p>En retour nous obtenons la réponse :</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;https://tools.ietf.org/html/rfc7231#section-6.5.1&quot;,
+  &quot;title&quot;: &quot;One or more validation errors occurred.&quot;,
+  &quot;status&quot;: 400,
+  &quot;traceId&quot;: &quot;|5679ad87-4b71d1b069bc6745.&quot;,
+  &quot;errors&quot;: {
+    &quot;LastName&quot;: [
+      &quot;The LastName field is required.&quot;
+    ],
+    &quot;CellPhone&quot;: [
+      &quot;The CellPhone field is required.&quot;
+    ],
+    &quot;FirstName&quot;: [
+      &quot;The FirstName field is required.&quot;
+    ],
+    &quot;HomePhone&quot;: [
+      &quot;The HomePhone field is not a valid phone number.&quot;
+    ]
+  }
+}
+</code></pre>
+<p>Nous pouvons remarquer que le champs <code>BirthDay</code> a passé la validation, et ce bien que nous lui ayons appliqué l'attribut <code>[Required]</code> mais pas fournit de valeur.</p>
+<p>Ceci est du au fait que <code>DateTime</code> est un <a href="https://docs.microsoft.com/fr-fr/dotnet/csharp/language-reference/builtin-types/value-types">type valeur</a>et donc qu'il aura forcément une valeur par défaut lors de la création du modèle. Voila pourquoi l'information n'est pas considérée comme <em>manquante</em>.</p>
+<p>Un solution consiste à rendre le champs nullable</p>
+<h3 id="validation-de-classe">Validation de classe</h3>
+<p>En reutilisant notre modèle <code>User</code>, nous souhaitons exprimer le fait qu'au moins un numéro de téléphone valide soit renseigné.</p>
+<p>Comme cette logique de validation implique <strong>plus d'une propriété</strong>, nous ne pouvons nous servir des attributs de validations.</p>
+<p>Au lieu de cela, nous allons utiliser l'interface <a href="https://docs.microsoft.com/fr-fr/dotnet/api/system.componentmodel.dataannotations.ivalidatableobject">IValidatableObject</a> et l'implémenter de la manière suivante sur notre modèle :</p>
+<pre><code class="language-csharp">public class User : IValidatableObject
+{
+  ...
+    public IEnumerable&lt;ValidationResult&gt; Validate(ValidationContext validationContext)
+    {        
+        if(HomePhone == null &amp;&amp; CellPhone == null)
+        {
+            yield return new ValidationResult(&quot;At least one phone number is required&quot;, new [] {nameof(HomePhone), nameof(CellPhone)});
+        }
+    }
+}
+</code></pre>
+<p>En soumettons la requête :</p>
+<pre><code class="language-json">{
+  &quot;firstName&quot;: &quot;Jean&quot;,
+  &quot;lastName&quot;: &quot;Dupont&quot;,
+}
+</code></pre>
+<p>Nous obtenons la réponse attendue :</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;https://tools.ietf.org/html/rfc7231#section-6.5.1&quot;,
+  &quot;title&quot;: &quot;One or more validation errors occurred.&quot;,
+  &quot;status&quot;: 400,
+  &quot;traceId&quot;: &quot;|8a63c595-4030754928e01558.&quot;,
+  &quot;errors&quot;: {
+    &quot;CellPhone&quot;: [
+      &quot;At least one phone number is required&quot;
+    ],
+    &quot;HomePhone&quot;: [
+      &quot;At least one phone number is required&quot;
+    ]
+  }
+}
+</code></pre>
+<h3 id="definir-ses-propres-attributs-de-validations">Définir ses propres attributs de validations</h3>
+<p>Il est fort probable au cours du développement de notre application webAPI que nous ayons besoin d'avantages de logique de validations de propriété.</p>
+<p>Pour ce faire, nous pouvons concevoirs nos propres classes héritant de <code>ValidationAttribute</code>, qui seront utilisés comme <strong>attributs</strong>.</p>
+<p>Voici quelques exemples assez parlant :</p>
+<pre><code class="language-csharp">using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System;
+
+/// &lt;summary&gt;
+/// Require the value is not null or the enumeration empty.
+/// &lt;/summary&gt;
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
+public sealed class NotNullOrEmptyEnumerable : ValidationAttribute
+{
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        string error = $&quot;'{validationContext.MemberName}' cannot be null or empty&quot;;
+
+        IEnumerable enumerable = value as IEnumerable;
+
+        if (enumerable != null &amp;&amp; enumerable.GetEnumerator().MoveNext())
+        {
+            return ValidationResult.Success;
+        }
+        
+        return new ValidationResult(error);
+    }
+}
+</code></pre>
+<pre><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
+/// &lt;summary&gt;
+/// Require the value is not null or the enumeration does not contains duplicate integer
+/// &lt;/summary&gt;
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
+public class NoDuplicateInteger : ValidationAttribute
+{
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        var collection = value as ICollection&lt;int&gt;;
+        if (collection == null)
+            return new ValidationResult($&quot;Parameter '{validationContext.MemberName}' is not a collection of integers&quot;);
+        if (collection.Count == collection.Distinct().Count())
+        {
+            return ValidationResult.Success;
+        }
+        return new ValidationResult($&quot;List '{validationContext.MemberName}' must not contains duplicated integers.&quot;);
+    }
+}
+</code></pre>
+
+        </div>
+    </div>
+    <div class="card-footer">
+                <a role="button" href="/tags/ASPNET" class="btn btn-secondary btn-sm">ASP.NET</a> 
+    </div>
+</div>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Categories -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <select class="custom-select" onchange="location = this.value;">
+                                    <option disabled selected hidden>Sélectionnez une catégorie</option>
+                                        <option value="/tags/ASPNET.html">
+                                            ASP.NET
+                                        </option>
+                                        <option value="/tags/ASPNET-web-API.html">
+                                            ASP.NET web API
+                                        </option>
+                                        <option value="/tags/CMD.html">
+                                            CMD
+                                        </option>
+                                        <option value="/tags/D%C3%A9veloppement.html">
+                                            D&#xE9;veloppement
+                                        </option>
+                                        <option value="/tags/Windows.html">
+                                            Windows
+                                        </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feeds -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Abonnements</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="/feed.rss">
+                                    <i class="fa fa-rss"> Rss</i>
+                                </a>
+                                <a class="btn btn-dark" href="/feed.atom">
+                                    <i class="fa fa-rss"> Atom</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social medias -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Réseaux sociaux</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="https://www.linkedin.com/in/romain-ferrec/" target="_blank">
+                                    <i class="fa fa-linkedin-square fa-2x"></i>
+                                </a>
+                                <a class="btn btn-dark" href="https://github.com/ferrecromain" target="_blank">
+                                    <i class="fa fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+               
+                </div>
+            </div>
+         </div>
+         <footer class="py-5 mt-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright © Romain Ferrec 2020</p>
+    </div>
+</footer>
+        
+        <!-- Javascript -->
+         <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

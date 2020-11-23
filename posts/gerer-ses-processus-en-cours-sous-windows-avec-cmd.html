@@ -1,0 +1,224 @@
+﻿
+<html>
+    <head>
+        <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="msvalidate.01" content="398D7F3FA72C77FA46683F7FA8C5D9B4" />
+        <title>G&#xE9;rer ses processus en cours sous Windows avec CMD | Romain Ferrec</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/tomorrow-night-bright.css">
+        <link rel="stylesheet" href="/assets/local/css/global.css">
+        <link rel="stylesheet" href="/assets/lib/highlightjs/vs2015.css">
+        <script src="/assets/lib/highlightjs/highlight.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+            <div class="container">
+                <a class="navbar-brand" href='/'>Romain Ferrec</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMainMenu">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href='/'>Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href='/tags'>Catégories</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Blog Entries Column -->
+                <div class="col-md-8">
+                    
+<div class="card bg-light mb-4">
+    <div class="card-header">
+        <h2>G&#xE9;rer ses processus en cours sous Windows avec CMD</h2>
+        <em>Publié le 28/03/2020</em>
+    </div>
+    <div class="card-body">
+        <div class="card-text">
+            <p>Nous allons voir quelques commandes indispensables pour gérer les différentes applications et processus en cours sous Windows avec l'invite de commande, au lieu de passer par le traditionnel <em>Gestionnaire des tâches</em>.</p>
+<h3 id="lister-filtrer-et-trier-les-taches-en-cours-dexecution">Lister, filtrer et trier les tâches en cours d'exécution</h3>
+<p>La commande <code>tasklist</code> nous permet d'obtenir la plupart des informations sur les tâches en cours d'exécutions.</p>
+<pre><code class="language-console">C:\&gt;tasklist
+
+Nom de l’image                 PID Nom de la sessio Numéro de s Utilisation
+========================= ======== ================ =========== ============
+System Idle Process              0 Services                   0         8 Ko
+System                           4 Services                   0     6 736 Ko
+Registry                       104 Services                   0    21 608 Ko
+smss.exe                       388 Services                   0       352 Ko
+csrss.exe                      580 Services                   0     2 304 Ko
+wininit.exe                    656 Services                   0     1 004 Ko
+services.exe                   728 Services                   0     6 564 Ko
+lsass.exe                      820 Services                   0    14 440 Ko
+svchost.exe                    932 Services                   0     1 124 Ko
+fontdrvhost.exe                952 Services                   0       460 Ko
+svchost.exe                    968 Services                   0    20 636 Ko
+...
+</code></pre>
+<p>Il est possible d'y coupler la commande <code>find</code> afin d'y filtrer les éléments qui nous intéresses :</p>
+<pre><code class="language-console">C:\&gt;tasklist | find &quot;msedge&quot;
+msedge.exe                   12984 Console                    5   117 536 Ko
+msedge.exe                   10576 Console                    5     2 140 Ko
+msedge.exe                   11988 Console                    5     1 344 Ko
+msedge.exe                   12832 Console                    5   108 476 Ko
+...
+</code></pre>
+<p>De plus avec la commande <code>sort</code>, nous pouvons trier la sortie, ci-dessous selon la mémoire occupée, par ordre décroissant.</p>
+<p>Petit rappel sur les paramètres de la commande sort :</p>
+<ul>
+<li><code>/r</code> : permet d'avoir un ordre de trie descendant.</li>
+<li><code>/+n</code> : où n spécifie la position du caractère où effectuer le tri. Ici <strong>64</strong> correspond, mais cela peut différer selon votre sortie.</li>
+</ul>
+<pre><code class="language-console">C:\&gt;tasklist | find &quot;msedge&quot; | sort /r /+64
+Nom de l'image                 PID Nom de la sessio Numéro de s Utilisation
+========================= ======== ================ =========== ============
+msedge.exe                    1924 Console                    5   147 532 Ko
+msedge.exe                   12832 Console                    5   127 128 Ko
+msedge.exe                   12984 Console                    5   121 928 Ko
+msedge.exe                    6692 Console                    5    81 464 Ko
+msedge.exe                   11832 Console                    5    61 856 Ko
+...
+</code></pre>
+<p>La commande <code>tasklist</code> comporte de nombreux <em>filtres</em> que vous pouvez utiliser, en fonction de vos besoins. Ici nous n'allons retenir que les instances de Microsoft Edge occupant plus de 100 Mo de mémoire vive.</p>
+<pre><code class="language-console">C:\&gt;tasklist /fi &quot;memusage gt 100000&quot; | find &quot;msedge&quot; | sort /r /+58
+msedge.exe                    1924 Console                    5   146 712 Ko
+msedge.exe                   12832 Console                    5   131 840 Ko
+msedge.exe                   12984 Console                    5   121 980 Ko
+</code></pre>
+<p>Notez que nous préférons utiliser la commande <code>find</code> plutôt que le filtre <em>imagename</em>. Ce dernier implique d'écrire le nom complet du processus, n'ayant que l'égalité comme opérateur de comparaison.</p>
+<h3 id="arreter-les-taches-en-cours-dexecution">Arrêter les tâches en cours d'exécution</h3>
+<p>Maintenant que nous connaissons les fondamentaux concernant l'affichage des informations sur les processus, voyons comment arrêter l'exécution de l'un ou plusieurs d'entre eux, avec la commande <code>taskkill</code>.</p>
+<h4 id="arreter-un-processus-particulier-a-laide-de-son-identifiant-pid">Arreter un processus particulier à l'aide de son identifiant (PID).</h4>
+<pre><code class="language-console">C:\&gt;tasklist /fi &quot;pid eq 1360&quot;
+
+Nom de l’image                 PID Nom de la sessio Numéro de s Utilisation
+========================= ======== ================ =========== ============
+msedge.exe                    1360 Console                    2   115 164 Ko
+
+C:\&gt;taskkill /pid 5380
+Opération réussie : un signal de fin a été envoyé au processus de PID 5380.
+
+C:\&gt;tasklist /fi &quot;pid eq 5380&quot;
+Information : aucune tâche en service ne correspond aux critères spécifiés.
+</code></pre>
+<p>Notez que le paramètre <code>/pid</code> peut être repété autant de fois que vous avez de processus particulier a fermer.</p>
+<h4 id="arreter-un-ensemble-de-processus-a-laide-de-leur-nom-commun">Arrêter un ensemble de processus à l'aide de leur nom commun.</h4>
+<pre><code class="language-console">C:\&gt;tasklist | find &quot;notepad&quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+
+C:\&gt;taskkill /im &quot;notepad*&quot;
+Opération réussie : un signal de fin a été envoyé au processus &quot;notepad.exe&quot; de PID 468.
+Opération réussie : un signal de fin a été envoyé au processus &quot;notepad.exe&quot; de PID 2640.
+
+C:\&gt;tasklist | find &quot;notepad&quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+</code></pre>
+<p>Les deux instances de notepad que nous avons souhaité fermer sont toujours actif, car seul un <strong>signal de fin</strong> a été envoyé au processus.</p>
+<p>Si nous savons ce que nous faisons, et que nous souhaitons passer outre ce comportement, vous pouvez <strong>forcer</strong> l'extinction (on parle également de tuer un processus), à l'aide du paramètre <code>/f</code>.</p>
+<pre><code class="language-console">C:\&gt;tasklist | find &quot;notepad&quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+
+C:\&gt;taskkill /im &quot;notepad*&quot; /f
+Opération réussie : le processus &quot;notepad.exe&quot; de PID 468 a été arrêté.
+Opération réussie : le processus &quot;notepad.exe&quot; de PID 2640 a été arrêté.
+
+C:\&gt;tasklist | find &quot;notepad&quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+</code></pre>
+
+        </div>
+    </div>
+    <div class="card-footer">
+                <a role="button" href="/tags/CMD" class="btn btn-secondary btn-sm">CMD</a> 
+    </div>
+</div>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Categories -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <select class="custom-select" onchange="location = this.value;">
+                                    <option disabled selected hidden>Sélectionnez une catégorie</option>
+                                        <option value="/tags/ASPNET.html">
+                                            ASP.NET
+                                        </option>
+                                        <option value="/tags/ASPNET-web-API.html">
+                                            ASP.NET web API
+                                        </option>
+                                        <option value="/tags/CMD.html">
+                                            CMD
+                                        </option>
+                                        <option value="/tags/D%C3%A9veloppement.html">
+                                            D&#xE9;veloppement
+                                        </option>
+                                        <option value="/tags/Windows.html">
+                                            Windows
+                                        </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feeds -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Abonnements</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="/feed.rss">
+                                    <i class="fa fa-rss"> Rss</i>
+                                </a>
+                                <a class="btn btn-dark" href="/feed.atom">
+                                    <i class="fa fa-rss"> Atom</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social medias -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Réseaux sociaux</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="https://www.linkedin.com/in/romain-ferrec/" target="_blank">
+                                    <i class="fa fa-linkedin-square fa-2x"></i>
+                                </a>
+                                <a class="btn btn-dark" href="https://github.com/ferrecromain" target="_blank">
+                                    <i class="fa fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+               
+                </div>
+            </div>
+         </div>
+         <footer class="py-5 mt-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright © Romain Ferrec 2020</p>
+    </div>
+</footer>
+        
+        <!-- Javascript -->
+         <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

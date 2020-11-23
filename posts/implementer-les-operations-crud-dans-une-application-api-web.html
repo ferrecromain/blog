@@ -1,0 +1,286 @@
+﻿
+<html>
+    <head>
+        <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="msvalidate.01" content="398D7F3FA72C77FA46683F7FA8C5D9B4" />
+        <title>Impl&#xE9;menter les op&#xE9;rations CRUD dans une application API web Restful | Romain Ferrec</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/tomorrow-night-bright.css">
+        <link rel="stylesheet" href="/assets/local/css/global.css">
+        <link rel="stylesheet" href="/assets/lib/highlightjs/vs2015.css">
+        <script src="/assets/lib/highlightjs/highlight.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+            <div class="container">
+                <a class="navbar-brand" href='/'>Romain Ferrec</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMainMenu">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href='/'>Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href='/tags'>Catégories</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Blog Entries Column -->
+                <div class="col-md-8">
+                    
+<div class="card bg-light mb-4">
+    <div class="card-header">
+        <h2>Impl&#xE9;menter les op&#xE9;rations CRUD dans une application API web Restful</h2>
+        <em>Publié le 23/05/2020</em>
+    </div>
+    <div class="card-body">
+        <div class="card-text">
+            <p>Lorsque nous créons un projet d'application web API Restful, il est important de respecter un certain nombre de <strong>contraintes</strong>.</p>
+<p>Nous allons partir d'un modèle de domaine <code>UserModel</code> avec lequel nous dédierons un contrôleur <code>UsersController</code> où nous implémenterons nos diverses actions <a href="https://fr.wikipedia.org/wiki/CRUD">CRUD</a>.</p>
+<p>Les <strong>ressources</strong> (données échangées entre client/serveur) seront <strong>représentées</strong> (format de présentation) au format JSON.</p>
+<p>Dans les actions de notre contrôleur, nous utilisons la logique de liaison de données (mapping), entre nos DTMs (Data Transfert Model) et notre modèle de domaine. Chaque opération à son propre DTM.</p>
+<p>En outre chacune d'entre elles sera documenté à l'aide de Swagger.</p>
+<h3 id="implementation-du-controleur">Implémentation du contrôleur</h3>
+<p>Le contrôleur regroupe un ensemble d'actions pour agir généralement sur une collection de données particulière.</p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// Operations about users
+/// &lt;/summary&gt;
+[ApiController]
+[Route(&quot;/api/[controller]&quot;)]
+public class UsersController : ControllerBase
+{
+    private readonly IQueryRepository&lt;UserModel&gt; _userQueryRepository;
+    private readonly ICommandRepository&lt;UserModel&gt; _userCommandRepository;
+
+    public UsersController
+        (
+            IQueryRepository&lt;UserModel&gt; userQueryRepository,
+            ICommandRepository&lt;UserModel&gt; userCommandRepository
+        )
+    {
+        _userQueryRepository = userQueryRepository;
+        _userCommandRepository = userCommandRepository;
+    }
+}
+</code></pre>
+<p>Passons en revue certains éléments :</p>
+<ul>
+<li><code>ControllerBase</code> : Classe sur laquelle dérivent les contrôleurs de notre application. <br />
+A ne pas confondre avec la classe <code>Controller</code> qui hérite de <code>ControllerBase</code> et ajoute la prise en charge des vues, servant aux applications ASP.NET MVC.</li>
+<li><code>ApiController</code> : Attribut permettant d'activer des comportements spécifiques, tel que :
+<ul>
+<li>Réponse <code>400 Bad Request</code> en cas d'exception levée lors de l'exécution d'une action.</li>
+<li>Attributs de source de liaison (<code>FromBody</code>, <code>FromRoute</code>...).</li>
+<li>Obligation d'appliquer l'attribut <code>Route</code> sur le contrôleur.</li>
+</ul>
+</li>
+<li><code>Route</code> : Attribut permettant de lier un contrôleur à un <em>modèle de route</em> (ici <code>/api/[controller]</code>)</li>
+<li><code>UsersController</code> : Classe de contrôleur de notre application, son constructeur sert à l'injection des dépendances nécessaires (classes de services). <br/>
+Son nom est soumis à deux contraintes :
+<ul>
+<li>Il est necesairement suffixé par <code>Controller</code>.</li>
+<li>Il doit necessairement prendre le pluriel.</li>
+</ul>
+</li>
+</ul>
+<h3 id="implementation-des-actions">Implémentation des actions</h3>
+<h4 id="lecture">Lecture</h4>
+<p>Le verbe HTTP <code>GET</code> sert à l'obtention de ressources.</p>
+<p>Nous pouvons exposer les données liées à notre modèle par les deux points de terminaisons ci-dessous :</p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// Get a single user
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;id&quot;&gt;User identifier&lt;/param&gt;
+/// &lt;response code=&quot;200&quot;&gt;The matching user&lt;/response&gt;
+/// &lt;response code=&quot;404&quot;&gt;Requested user was not found&lt;/response&gt;
+/// &lt;response code=&quot;400&quot;&gt;Request cannot be completed, check output for more details&lt;/response&gt;
+[HttpGet(&quot;{id}&quot;)]
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult GetAsync(int id)
+{
+    UserModel user = await _userQueryRepository.GetAsync(id);
+
+    if(user == null)
+        return NotFound(NotFoundStrings.EntityNotFound(id));
+    
+    return Ok(new UserGetDto(user));
+}
+
+/// &lt;summary&gt;
+/// Get all available users
+/// &lt;/summary&gt;
+/// &lt;response code=&quot;200&quot;&gt;Collection of users&lt;/response&gt;
+/// &lt;response code=&quot;400&quot;&gt;Request cannot be completed, check output for more details&lt;/response&gt;
+[HttpGet]
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult GetAsync()
+{
+    IEnumerable&lt;UserGetDto&gt; users = await _userQueryRepository.GetAsync();
+    return Ok(users.Select(m =&gt; new UserGetDto(m));
+}
+</code></pre>
+<h4 id="creation">Création</h4>
+<p>Le verbe HTTP <code>POST</code> sert à la création de nouvelles ressources.</p>
+<p>En cas de succès, nous renvoyons le statut <code>201 Created</code> et renseignons l'entête HTTP <code>location</code> par l'<strong>URI</strong> vers la ressource créée (ref : <a href="https://tools.ietf.org/html/rfc2616#section-9.5">RFC2616</a>).</p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// Create a new user
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;dto&quot;&gt;User informations&lt;/param&gt;
+/// &lt;response code=&quot;201&quot;&gt;User has been created successfuly&lt;/response&gt;
+/// &lt;response code=&quot;400&quot;&gt;Request cannot be completed, check output for more details&lt;/response&gt;
+[HttpPost]
+[ProducesResponseType(StatusCodes.Status201Created)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult PostAsync(UserPostDto dto)
+{
+    UserModel model = dto.ToModel();
+    model = await _userCommandRepository.CreateAsync(model);
+    return CreatedAtAction(nameof(Get), new { id = model.Id }, new UserGetDto(model));
+}
+</code></pre>
+<h4 id="mise-a-jour">Mise à jour</h4>
+<p>Le verbe HTTP <code>PUT</code> sert à la modification complète de ressources.</p>
+<p>Si nous souhaitons ne modifier qu'une seule propriété nous devons tout de même renseigner les autres car sinon elles seront remplies avec des valeurs par défaut.</p>
+<p>En cas de succès, il est recommandé de renvoyer un corps de réponse vide avec le code HTTP <code>204 No Content</code>. Si toutefois nous devions retourner des informations alors nous utiliserions le code HTTP <code>200 Ok</code>.</p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// Update an existing user
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;dto&quot;&gt;User informations&lt;/param&gt;
+/// &lt;param name=&quot;id&quot;&gt;User identifier&lt;/param&gt;
+/// &lt;response code=&quot;201&quot;&gt;User has been updated successfuly&lt;/response&gt;
+/// &lt;response code=&quot;404&quot;&gt;Requested user was not found&lt;/response&gt;
+/// &lt;response code=&quot;400&quot;&gt;Request cannot be completed, check output for more details&lt;/response&gt;
+[HttpPut(&quot;{id}&quot;})]
+[ProducesResponseType(StatusCodes.Status204NoContent)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult PutAsync(int id, UserPostDto dto)
+{
+    if(user == null)
+        return NotFound(NotFoundStrings.EntityNotFound(id));
+    UserModel model = dto.ToModel();
+    model = await _userCommandRepository.Update(model);
+    return CreatedAtAction(nameof(Get), new { id = model.Id }, new UserGetDto(model));
+}
+</code></pre>
+<h4 id="suppression">Suppression</h4>
+<p>Le verbe HTTP <code>DELETE</code> sert à la suppression de ressources existantes.</p>
+<p>En cas de succès, il est recommandé de renvoyer un corps de réponse vide avec le code HTTP <code>204 No Content</code>. Si toutefois nous devions retourner des informations alors nous utiliserions le code HTTP <code>200 Ok</code>.</p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// Delete an existing user
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;id&quot;&gt;User identifier&lt;/param&gt;
+/// &lt;response code=&quot;204&quot;&gt;User has been deleted successfuly&lt;/response&gt;
+/// &lt;response code=&quot;404&quot;&gt;Requested user was not found&lt;/response&gt;
+/// &lt;response code=&quot;400&quot;&gt;Request cannot be completed, check output for more details&lt;/response&gt;
+[HttpDelete(&quot;{id}&quot;)]
+[ProducesResponseType(StatusCodes.Status204NoContent)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult DeleteAsync(int id)
+{
+    UserModel user = await _userQueryRepository.GetAsync(id);
+
+    if(user == null)
+        return NotFound(NotFoundStrings.EntityNotFound(id));
+    
+    await _userQueryRepository.DeleteAsync(id);
+    return NoContent();
+}
+</code></pre>
+
+        </div>
+    </div>
+    <div class="card-footer">
+                <a role="button" href="/tags/ASPNET-web-API" class="btn btn-secondary btn-sm">ASP.NET web API</a> 
+    </div>
+</div>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Categories -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <select class="custom-select" onchange="location = this.value;">
+                                    <option disabled selected hidden>Sélectionnez une catégorie</option>
+                                        <option value="/tags/ASPNET.html">
+                                            ASP.NET
+                                        </option>
+                                        <option value="/tags/ASPNET-web-API.html">
+                                            ASP.NET web API
+                                        </option>
+                                        <option value="/tags/CMD.html">
+                                            CMD
+                                        </option>
+                                        <option value="/tags/D%C3%A9veloppement.html">
+                                            D&#xE9;veloppement
+                                        </option>
+                                        <option value="/tags/Windows.html">
+                                            Windows
+                                        </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feeds -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Abonnements</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="/feed.rss">
+                                    <i class="fa fa-rss"> Rss</i>
+                                </a>
+                                <a class="btn btn-dark" href="/feed.atom">
+                                    <i class="fa fa-rss"> Atom</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social medias -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Réseaux sociaux</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="https://www.linkedin.com/in/romain-ferrec/" target="_blank">
+                                    <i class="fa fa-linkedin-square fa-2x"></i>
+                                </a>
+                                <a class="btn btn-dark" href="https://github.com/ferrecromain" target="_blank">
+                                    <i class="fa fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+               
+                </div>
+            </div>
+         </div>
+         <footer class="py-5 mt-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright © Romain Ferrec 2020</p>
+    </div>
+</footer>
+        
+        <!-- Javascript -->
+         <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

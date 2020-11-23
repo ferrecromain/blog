@@ -1,0 +1,191 @@
+﻿
+<html>
+    <head>
+        <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="msvalidate.01" content="398D7F3FA72C77FA46683F7FA8C5D9B4" />
+        <title>Documenter ses APIs avec Swagger | Romain Ferrec</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/tomorrow-night-bright.css">
+        <link rel="stylesheet" href="/assets/local/css/global.css">
+        <link rel="stylesheet" href="/assets/lib/highlightjs/vs2015.css">
+        <script src="/assets/lib/highlightjs/highlight.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+            <div class="container">
+                <a class="navbar-brand" href='/'>Romain Ferrec</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMainMenu">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href='/'>Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href='/tags'>Catégories</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Blog Entries Column -->
+                <div class="col-md-8">
+                    
+<div class="card bg-light mb-4">
+    <div class="card-header">
+        <h2>Documenter ses APIs avec Swagger</h2>
+        <em>Publié le 06/05/2020</em>
+    </div>
+    <div class="card-body">
+        <div class="card-text">
+            <p>Swagger est une collection d'outils permettant de concevoir, générer et <strong>documenter</strong> des API REST. Il respose sur la spécification <em>OpenAPI</em> et est implémenté en ASP.NET Core à travers <em>SwashBuckle</em>.</p>
+<h3 id="installer-et-configurer-swashbuckle">Installer et configurer SwashBuckle</h3>
+<p>Installons le paquet nuget <a href="https://www.nuget.org/packages/Swashbuckle.AspNetCore/">Swashbuckle.AspNetCore</a> dans le projet d'application Web API que nous souhaitons documenter.</p>
+<p>Ensuite dans le fichier <code>startup.cs</code>, ajoutons dans la collection de services (méthode <code>ConfigureService</code>) le générateur Swagger :</p>
+<pre><code class="language-csharp">services.AddSwaggerGen(c =&gt;
+{
+    c.SwaggerDoc(&quot;v1.0&quot;, new OpenApiInfo { Title = &quot;Mon application WebAPI&quot;, Version = &quot;v1.0&quot; });
+
+    // Indiquer à Swagger l'emplacement de la documentation XML.
+    var xmlFile = $&quot;{Assembly.GetExecutingAssembly().GetName().Name}.xml&quot;;
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
+</code></pre>
+<p>Puis activons les intergiciels (méthode <code>Configure</code>) pour dans l'ordre :</p>
+<ol>
+<li>Servir le point de terminaison Swagger contenant la spécification OpenAPI au format JSON.</li>
+<li>Servir l'application web Swagger UI.</li>
+</ol>
+<pre><code class="language-csharp">app.UseSwagger();
+app.UseSwaggerUI(c =&gt;
+{
+    c.SwaggerEndpoint(&quot;/swagger/v1/swagger.json&quot;, &quot;Mon application WebAPI v1.0&quot;);
+});
+</code></pre>
+<p>Enfin dans le fichier de configuration du projet, nous souhaitons pouvoir générer le fichier <code>/bin/&lt;NomDuProjet&gt;.xml</code> contenant l'ensemble de la documentation XML et ne pas être averti des membres publiques non documentés</p>
+<pre><code class="language-xml">&lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;netcoreapp3.1&lt;/TargetFramework&gt;
+    &lt;GenerateDocumentationFile&gt;true&lt;/GenerateDocumentationFile&gt;
+    &lt;NoWarn&gt;CS1591&lt;/NoWarn&gt;
+&lt;/PropertyGroup&gt;
+</code></pre>
+<p>A présent si nous démarrons notre projet, et que nous souhaitons accéder à l'adresse <code>/swagger/v1/swagger.json</code> précedemment définie, nous obtiendrons la spécification OpenAPI courante de notre application.</p>
+<h3 id="documenter-ses-points-de-terminaisons">Documenter ses points de terminaisons</h3>
+<p>Dans le contrôleur d'exemple ci dessous, un jeu d'attributs et de commentaires XML ont été utilisés afin de le documenter ainsi que son point de terminaison</p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// Operations about felines
+/// &lt;/summary&gt;
+[ApiController]
+[Route(&quot;[controller]&quot;)]
+[Produces(MediaTypeNames.Application.Json)]
+public class FelinesController : ControllerBase
+{
+    /// &lt;summary&gt;
+    /// Get felines that match the pattern
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;pattern&quot;&gt;Search pattern &lt;/param&gt;
+    /// &lt;response code=&quot;200&quot;&gt;Returns the matching felines&lt;/response&gt;
+    /// &lt;response code=&quot;400&quot;&gt;Request cannot be completed, check output for more details&lt;/response&gt;
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet(&quot;contains/{pattern}&quot;)]
+    public IEnumerable&lt;string&gt; Search([Required, StringLength(5)] string pattern)
+    {
+        var words = new List&lt;string&gt;() {&quot;Tigre&quot;, &quot;Guépard&quot;, &quot;Jaguar&quot;};
+        return words.Where(p =&gt; p.Contains(pattern));
+    }
+}
+</code></pre>
+<p>A partir du code précedent, <strong>SwaggerUI</strong> sera en mesure de nous founir la documentation suivante à l'adresse <code>/swagger/index.html</code> :</p>
+<p><img src="/media/development/swagger/swagger-ui.png" class="img-fluid" alt="Documentation de l'API via Swagger UI" /></p>
+
+        </div>
+    </div>
+    <div class="card-footer">
+                <a role="button" href="/tags/ASPNET-web-API" class="btn btn-secondary btn-sm">ASP.NET web API</a> 
+    </div>
+</div>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Categories -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <select class="custom-select" onchange="location = this.value;">
+                                    <option disabled selected hidden>Sélectionnez une catégorie</option>
+                                        <option value="/tags/ASPNET.html">
+                                            ASP.NET
+                                        </option>
+                                        <option value="/tags/ASPNET-web-API.html">
+                                            ASP.NET web API
+                                        </option>
+                                        <option value="/tags/CMD.html">
+                                            CMD
+                                        </option>
+                                        <option value="/tags/D%C3%A9veloppement.html">
+                                            D&#xE9;veloppement
+                                        </option>
+                                        <option value="/tags/Windows.html">
+                                            Windows
+                                        </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feeds -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Abonnements</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="/feed.rss">
+                                    <i class="fa fa-rss"> Rss</i>
+                                </a>
+                                <a class="btn btn-dark" href="/feed.atom">
+                                    <i class="fa fa-rss"> Atom</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social medias -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Réseaux sociaux</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="https://www.linkedin.com/in/romain-ferrec/" target="_blank">
+                                    <i class="fa fa-linkedin-square fa-2x"></i>
+                                </a>
+                                <a class="btn btn-dark" href="https://github.com/ferrecromain" target="_blank">
+                                    <i class="fa fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+               
+                </div>
+            </div>
+         </div>
+         <footer class="py-5 mt-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright © Romain Ferrec 2020</p>
+    </div>
+</footer>
+        
+        <!-- Javascript -->
+         <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

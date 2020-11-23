@@ -1,0 +1,297 @@
+﻿
+<html>
+    <head>
+        <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="msvalidate.01" content="398D7F3FA72C77FA46683F7FA8C5D9B4" />
+        <title>Patrons de conception de type Factory | Romain Ferrec</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/tomorrow-night-bright.css">
+        <link rel="stylesheet" href="/assets/local/css/global.css">
+        <link rel="stylesheet" href="/assets/lib/highlightjs/vs2015.css">
+        <script src="/assets/lib/highlightjs/highlight.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+            <div class="container">
+                <a class="navbar-brand" href='/'>Romain Ferrec</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMainMenu">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href='/'>Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href='/tags'>Catégories</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Blog Entries Column -->
+                <div class="col-md-8">
+                    
+<div class="card bg-light mb-4">
+    <div class="card-header">
+        <h2>Patrons de conception de type Factory</h2>
+        <em>Publié le 25/10/2020</em>
+    </div>
+    <div class="card-body">
+        <div class="card-text">
+            <p>Dans cet article, nous allons parcourir les trois types de <em>fabriques</em> existante. En fonction du contexte et du besoin, elles ont pour principal objectif de réduire la <strong>duplication de code</strong> :</p>
+<ol>
+<li><a href="#simple-factory">Simple factory</a></li>
+<li><a href="#factory-method-pattern">Factory method pattern</a></li>
+<li><a href="#abstract-factory-pattern">Abstract factory pattern</a></li>
+</ol>
+<p>Pour chacun de nos exemples, il s'agira de mettre en place une fabrique de création d'une instance de client ou serveur, HTTP ou FTP.</p>
+<h3 id="simple-factory">Simple Factory</h3>
+<p>Son but est d'encapsuler la création d'objets à un seul endroit. Cependant il ne s'agit pas d'un patron de conception.</p>
+<p>Dans l'exemple ci-dessous, nous disposons d'une <strong>fabrique</strong> d'applications utilisant le protocole HTTP.</p>
+<pre><code class="language-csharp">public sealed class HttpApplicationFactory
+{
+    public static IClientServerApplication CreateHttpApplication(ApplicationType applicationtype)
+    {
+        switch(applicationtype)
+        {
+            case ApplicationType.Client:
+                return new HttpClient();
+            case ApplicationType.Server:
+                return new HttpServer();
+            default:
+                throw new ArgumentException($&quot;Non managed application type {applicationType}&quot;);
+        }
+    }
+}
+</code></pre>
+<p>Nous pouvons l'utiliser de la manière suivante :</p>
+<pre><code class="language-csharp">HttpApplicationFactory factory = new HttpApplicationFactory();
+IClientServerApplication application = factory.Create(ApplicationType.Client);
+</code></pre>
+<h3 id="factory-method-pattern">Factory method pattern</h3>
+<p>Il permet la création d'objets, sans avoir à manipuler lors de l'utilisation, la classe concrète de l'objet qui sera créé.</p>
+<p>Cela est possible en créant les objets à l'aide d'une <strong>méthode de fabrication (factory method)</strong>, qui peut-être :</p>
+<ul>
+<li>Soit spécifiée dans une interface et implémentée par les classes dépendantes</li>
+<li>Soit implémentée dans une classe de base et surchargée par les classes filles.</li>
+</ul>
+<pre><code class="language-csharp">public abstract class TcpApplicationFactory
+{
+    // Factory method
+    public IClientServerApplication Create(ApplicationType type)
+    {
+        IClientServerApplication application;
+        switch(type)
+        {
+            case ApplicationType.Client:
+                application = CreateClient();
+                break;
+            case ApplicationType.Server:
+                application = CreateServer();
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        return application;
+    }
+
+    public abstract IClientServerApplication CreateClient();
+    public abstract IClientServerApplication CreateServer();
+}
+
+public sealed class HttpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        // Instanciation of HttpClient concrete class 
+        return new HttpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        // Instanciation of HttpServer concrete class
+        return new HttpServer();
+    }
+}
+
+public sealed class FtpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        return new FtpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        return new FtpServer();
+    }
+}
+</code></pre>
+<p>Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appelant, et aucune mention de la classe concrète <code>FtpClient</code> n'y est présente.</p>
+<pre><code class="language-csharp"> IClientServerApplication application = new FtpApplicationFactory().Create(ApplicationType.Client);
+</code></pre>
+<p>Comparé au <strong>Simple Factory</strong>, cela permet repartir les logiques de création de chaque classe au lieu de les concentrer dans une seule et même méthode.</p>
+<h3 id="abstract-factory-pattern">Abstract factory pattern</h3>
+<p>La fabrique abstraite fournit un moyen d'<strong>encapsuler un ensemble de fabrique</strong> de la même thématique.</p>
+<p>Le code client crée une instance concrète de la fabrique abstraite, puis l'utilise pour créer des objets concrets de la thématique</p>
+<p>Le client ne se préoccupe pas de savoir quelle fabrique crée un objet concret, ni de quelle classe concrète est l'objet en question : il n'utilise que les interfaces génériques des objets produits.</p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// Abstract factory
+/// &lt;/summary&gt;
+public abstract class TcpApplicationFactory
+{
+    public abstract IClientServerApplication CreateClient();
+    public abstract IClientServerApplication CreateServer();
+}
+
+#region Concretes factories
+public sealed class FtpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        return new FtpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        return new FtpServer();
+    }
+}
+
+public sealed class HttpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        // Instanciation of HttpClient concrete class 
+        return new HttpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        // Instanciation of HttpServer concrete class
+        return new HttpServer();
+    }
+}
+#endregion
+
+public sealed class Client
+{
+    private TcpApplicationFactory _factory { get; set; }
+    public Client(TcpApplicationFactory factory)
+    {
+        _factory = factory;
+    }
+
+    public IClientServerApplication Create(ApplicationType type)
+    {
+        IClientServerApplication application;
+        switch(type)
+        {
+            case ApplicationType.Client:
+                application = CreateClient();
+                break;
+            case ApplicationType.Server:
+                application = CreateServer();
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        return application;
+    }
+}
+</code></pre>
+<p>Voici un exemple d'utilisation :</p>
+<pre><code class="language-csharp">IClientServerApplication application = new Client(new HttpApplicationFactory()).Create(ApplicationType.Client);
+</code></pre>
+
+        </div>
+    </div>
+    <div class="card-footer">
+                <a role="button" href="/tags/D%C3%A9veloppement" class="btn btn-secondary btn-sm">D&#xE9;veloppement</a> 
+    </div>
+</div>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Categories -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <select class="custom-select" onchange="location = this.value;">
+                                    <option disabled selected hidden>Sélectionnez une catégorie</option>
+                                        <option value="/tags/ASPNET.html">
+                                            ASP.NET
+                                        </option>
+                                        <option value="/tags/ASPNET-web-API.html">
+                                            ASP.NET web API
+                                        </option>
+                                        <option value="/tags/CMD.html">
+                                            CMD
+                                        </option>
+                                        <option value="/tags/D%C3%A9veloppement.html">
+                                            D&#xE9;veloppement
+                                        </option>
+                                        <option value="/tags/Windows.html">
+                                            Windows
+                                        </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feeds -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Abonnements</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="/feed.rss">
+                                    <i class="fa fa-rss"> Rss</i>
+                                </a>
+                                <a class="btn btn-dark" href="/feed.atom">
+                                    <i class="fa fa-rss"> Atom</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social medias -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Réseaux sociaux</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="https://www.linkedin.com/in/romain-ferrec/" target="_blank">
+                                    <i class="fa fa-linkedin-square fa-2x"></i>
+                                </a>
+                                <a class="btn btn-dark" href="https://github.com/ferrecromain" target="_blank">
+                                    <i class="fa fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+               
+                </div>
+            </div>
+         </div>
+         <footer class="py-5 mt-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright © Romain Ferrec 2020</p>
+    </div>
+</footer>
+        
+        <!-- Javascript -->
+         <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

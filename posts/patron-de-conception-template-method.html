@@ -1,0 +1,224 @@
+﻿
+<html>
+    <head>
+        <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="msvalidate.01" content="398D7F3FA72C77FA46683F7FA8C5D9B4" />
+        <title>Patron de conception Template Method | Romain Ferrec</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/tomorrow-night-bright.css">
+        <link rel="stylesheet" href="/assets/local/css/global.css">
+        <link rel="stylesheet" href="/assets/lib/highlightjs/vs2015.css">
+        <script src="/assets/lib/highlightjs/highlight.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-5">
+            <div class="container">
+                <a class="navbar-brand" href='/'>Romain Ferrec</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMainMenu">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href='/'>Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href='/tags'>Catégories</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <!-- Blog Entries Column -->
+                <div class="col-md-8">
+                    
+<div class="card bg-light mb-4">
+    <div class="card-header">
+        <h2>Patron de conception Template Method</h2>
+        <em>Publié le 13/11/2020</em>
+    </div>
+    <div class="card-body">
+        <div class="card-text">
+            <h3 id="definition">Définition</h3>
+<p>Le patron de conception <strong>template method</strong> définit les <em>étapes d'exécution</em> d'un algorithme.
+Certaines de ces étapes pouvant être implémentées dans des sous-classes pour permettre des comportements différents tout en garantissant le même ordre d'exécution.</p>
+<h3 id="exemple">Exemple</h3>
+<p>Dans l'exemple ci-dessous, nous avons une société disposant de deux établissements : un <em>casino</em> et un <em>restaurant</em>.
+La création d'un nouveau compte sur l'un ou l'autre se matérialise par une <strong>succession d'étapes</strong> :</p>
+<ol>
+<li>Vérification des informations</li>
+<li>Enregistrement en base de données</li>
+<li>Envoi d'un courriel de bienvenue</li>
+</ol>
+<p>Ces étapes doivent donc <strong>être executé dans le même ordre</strong> quel que soit l'établissement, cependant chacun à sa façon de les implémenter.</p>
+<p><em>Note : <code>SendEmail</code> et <code>Store</code> n'ont pas été implémentées dans les sous-classes pour aller à l'essentiel.</em></p>
+<pre><code class="language-csharp">/// &lt;summary&gt;
+/// CustomerRegister abstract class
+/// &lt;/summary&gt;
+public abstract class CustomerRegister
+{
+    /// &lt;summary&gt;
+    /// Template method
+    /// &lt;/summary&gt;
+    public void Register(CustomerModel customer)
+    {
+        Check(customer);
+        Store(customer);
+        SendEmail(customer);
+    }
+
+    public abstract void Check(CustomerModel customer);
+    public abstract void Store(CustomerModel customer);
+    public abstract void SendEmail(CustomerModel customer);
+}
+
+/// &lt;summary&gt;
+/// CasinoCustomerRegister concrete class
+/// &lt;/summary&gt;
+public sealed class CasinoCustomerRegister : CustomerRegister
+{
+    public override void Check(CustomerModel customer)
+    {
+        CustomerCheckRules.CheckName(customer.FirstName);
+        CustomerCheckRules.CheckName(customer.LastName);
+        CustomerCheckRules.CheckAge(customer.Age, AgeRule.OfAge);
+        CustomerCheckRules.CheckSocialSecurityNumber(customer.SocialSecurityNumber);
+        CustomerCheckRules.CheckBlackList(customer.SocialSecurityNumber);
+        ...
+    }
+
+    public override void SendEmail(CustomerModel customer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Store(CustomerModel email)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// &lt;summary&gt;
+/// RestaurantCustomerRegister concrete class
+/// &lt;/summary&gt;
+public sealed class RestaurantCustomerRegister : CustomerRegister
+{
+    public override void Check(CustomerModel customer)
+    {
+        CustomerCheckRules.CheckName(customer.FirstName);
+        CustomerCheckRules.CheckName(customer.LastName);
+        ...
+        
+    }
+
+    public override void SendEmail(CustomerModel customer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Store(CustomerModel email)
+    {
+        throw new NotImplementedException();
+    }
+}
+</code></pre>
+<p>Ci dessous, nous nous attendons à ce que l'inscription du nouveau client soit <strong>rejeté</strong>, du fait de son <strong>age</strong> (<code>CheckAge(customer.Age, AgeRule.OfAge)</code>).
+En revanche il lui est tout à fait permis de s'inscrire au restaurant.</p>
+<pre><code class="language-csharp">CustomerModel customer = new CustomerModel() 
+{ 
+    FirstName = &quot;John&quot;, 
+    LastName = &quot;Doe&quot;, 
+    Age = 17,
+    Email = &quot;johndoe&#64;email.tld&quot; 
+};
+new CasinoCustomerRegister().Register(customer);
+</code></pre>
+
+        </div>
+    </div>
+    <div class="card-footer">
+                <a role="button" href="/tags/D%C3%A9veloppement" class="btn btn-secondary btn-sm">D&#xE9;veloppement</a> 
+    </div>
+</div>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Categories -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <select class="custom-select" onchange="location = this.value;">
+                                    <option disabled selected hidden>Sélectionnez une catégorie</option>
+                                        <option value="/tags/ASPNET.html">
+                                            ASP.NET
+                                        </option>
+                                        <option value="/tags/ASPNET-web-API.html">
+                                            ASP.NET web API
+                                        </option>
+                                        <option value="/tags/CMD.html">
+                                            CMD
+                                        </option>
+                                        <option value="/tags/D%C3%A9veloppement.html">
+                                            D&#xE9;veloppement
+                                        </option>
+                                        <option value="/tags/Windows.html">
+                                            Windows
+                                        </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feeds -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Abonnements</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="/feed.rss">
+                                    <i class="fa fa-rss"> Rss</i>
+                                </a>
+                                <a class="btn btn-dark" href="/feed.atom">
+                                    <i class="fa fa-rss"> Atom</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social medias -->
+                    <div class="card text-white bg-secondary mb-3">
+                        <h5 class="card-header">Réseaux sociaux</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <a class="btn btn-dark" href="https://www.linkedin.com/in/romain-ferrec/" target="_blank">
+                                    <i class="fa fa-linkedin-square fa-2x"></i>
+                                </a>
+                                <a class="btn btn-dark" href="https://github.com/ferrecromain" target="_blank">
+                                    <i class="fa fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+               
+                </div>
+            </div>
+         </div>
+         <footer class="py-5 mt-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright © Romain Ferrec 2020</p>
+    </div>
+</footer>
+        
+        <!-- Javascript -->
+         <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

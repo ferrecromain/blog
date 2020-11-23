@@ -1,0 +1,1027 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+	<channel>
+		<title>Romain Ferrec</title>
+		<link>https://www.romainferrec.fr/</link>
+		<description>Welcome!</description>
+		<copyright>2020</copyright>
+		<pubDate>Mon, 23 Nov 2020 18:13:21 GMT</pubDate>
+		<lastBuildDate>Mon, 23 Nov 2020 18:13:21 GMT</lastBuildDate>
+		<item>
+			<title>Patron de conception Facade</title>
+			<link>https://www.romainferrec.fr/posts/patron-de-conception-facade</link>
+			<description>&lt;p&gt;Le patron de conception &lt;strong&gt;facade&lt;/strong&gt; fournit une API simplifiée pour un ou plusieurs sous-systèmes.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/patron-de-conception-facade</guid>
+			<pubDate>Mon, 23 Nov 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;h3 id="definition"&gt;Définition&lt;/h3&gt;
+&lt;p&gt;Le patron de conception &lt;strong&gt;facade&lt;/strong&gt; fournit une API simplifiée pour un ou plusieurs sous-systèmes.&lt;/p&gt;
+&lt;p&gt;Une façade permet de :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;De créer une nouvelle API facilement utilisable, compréhensible et testable.&lt;/li&gt;
+&lt;li&gt;Réduire les dépendances entre le code extérieur et le ou les sous-systèmes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="exemple"&gt;Exemple&lt;/h3&gt;
+&lt;p&gt;Dans l'exemple ci-dessous :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;AccountRepository&lt;/code&gt;, &lt;code&gt;LoggerService&lt;/code&gt;, &lt;code&gt;EmailService&lt;/code&gt; sont les &lt;em&gt;sous-systèmes&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;AccountService&lt;/code&gt; est la &lt;em&gt;façade&lt;/em&gt; que les clients utiliseront pour interagir avec les comptes utilisateurs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Facade class
+/// &amp;lt;/summary&amp;gt;
+public class AccountService
+{
+    ...
+    public void RemoveAccount(int id)
+    {
+        Account account = _accountRepository.Get(id);
+        if(account != null)
+        {
+            _accountRepository.Delete(id);
+            _emailService.Send(Account, EmailTemplate.AccountRemoved);
+        }
+        _loggerService.Log(logLevel.Warn, $&amp;quot;Account id : {id} does not exists&amp;quot;);
+    }
+
+    public CreateAccount(Account account)
+    {
+        _accountRepository.Create(account);
+        _emailService.Send(Account, EmailTemplate.AccountCreated);
+    }
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Patron de conception Adapter</title>
+			<link>https://www.romainferrec.fr/posts/patron-de-conception-adapter</link>
+			<description>&lt;p&gt;Le patron de conception &lt;strong&gt;adaptateur&lt;/strong&gt; (adapter) autorise l'interface (API) d'une classe existante, à été réutilisée par une autre classe pour fournir une autre interface.
+Il est souvent utilisé pour rendre des classes existantes compatibles entre elles sans modifier leurs codes.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/patron-de-conception-adapter</guid>
+			<pubDate>Tue, 17 Nov 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;h3 id="definition"&gt;Définition&lt;/h3&gt;
+&lt;p&gt;Le patron de conception &lt;strong&gt;adaptateur&lt;/strong&gt; (adapter) autorise l'interface (API) d'une classe existante, à été réutilisée par une autre classe pour fournir une autre interface.
+Il est souvent utilisé pour rendre des classes existantes compatibles entre elles sans modifier leurs codes.&lt;/p&gt;
+&lt;h3 id="exemple"&gt;Exemple&lt;/h3&gt;
+&lt;p&gt;Dans l'exemple ci-dessous, nous avons un client &lt;em&gt;HTTP&lt;/em&gt; et un client &lt;em&gt;FTP&lt;/em&gt; ayant chacun leur propre structure d'API.
+Nous souhaitons disposer d'une &lt;strong&gt;API commune&lt;/strong&gt; à ces deux types de clients, pour les besoins de notre application.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Note : Dans un soucis de simplicité, seul les mechanismes de téléchargement ont été adaptés&lt;/em&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// HTTP client adaptee
+/// &amp;lt;/summary&amp;gt;
+public class HttpClient
+{
+    public void Get(string sourcePath, string destinationPath)
+    {
+        // Logic to get a file
+    }
+}
+
+/// &amp;lt;summary&amp;gt;
+/// FTP client adaptee
+/// &amp;lt;/summary&amp;gt;
+public class FtpClient
+{
+    public void DownloadFile(string sourcePath, string destinationPath, bool removeOnRemote)
+    {
+        // Logic to get a file
+    }
+}
+
+/// &amp;lt;summary&amp;gt;
+/// Target
+/// &amp;lt;/summary&amp;gt;
+public interface IClient
+{
+    void Download(string sourcePath, string destinationPath);
+}
+
+/// &amp;lt;summary&amp;gt;
+/// HTTP Client Adapter 
+/// &amp;lt;/summary&amp;gt;
+public class HttpClientAdapter : IClient
+{
+    private HttpClient _client { get; set; }
+
+    public HttpClientAdapter()
+    {
+        _client = new HttpClient();
+    }
+
+    public void Download(string sourcePath, string destinationPath)
+    {
+        _client.Get(sourcePath, destinationPath);
+    }
+}
+
+/// &amp;lt;summary&amp;gt;
+/// FTP Client Adapter 
+/// &amp;lt;/summary&amp;gt;
+public class FtpClientAdapter : IClient
+{
+    private FtpClient _client { get; set; }
+
+    public FtpClientAdapter()
+    {
+        _client = new FtpClient();
+    }
+
+    public void Download(string sourcePath, string destinationPath)
+    {
+        _client.DownloadFile(sourcePath, destinationPath, false);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Dans l'exemple ci dessous nous souhaitons télécharger un fichier de reporting depuis chaque serveur (représentant un département) d'une grande entreprise. Seulement tous les serveurs n'utilisent pas le même protocole :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;...
+foreach(Server server in servers)
+{
+    IClient client;
+    switch(server.type)
+    {
+        case Protocol.Ftp:
+            client = new HttpClientAdapter();
+            break;
+        case Protocol.Http:
+            client = new FtpClientAdapter();
+            break;
+        default:
+            throw new NotImplementedException();
+    }
+    client.Download(&amp;quot;/reporting/202006.xls&amp;quot;, Path.Combine(Directory.GetCurrentDirectory(), server.Name));
+}
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Sans application du patron de conception, il aurait fallu spécifier pour chaque client : quelle méthode utiliser avec quels arguments et quelles logiques de gestion de chaque comportement.&lt;/p&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Patron de conception Template Method</title>
+			<link>https://www.romainferrec.fr/posts/patron-de-conception-template-method</link>
+			<description>&lt;p&gt;Le patron de conception &lt;strong&gt;template method&lt;/strong&gt; définit les &lt;em&gt;étapes d'exécution&lt;/em&gt; d'un algorithme.
+Certaines de ces étapes pouvant être implémentées dans des sous-classes pour permettre des comportements différents tout en garantissant le même ordre d'exécution.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/patron-de-conception-template-method</guid>
+			<pubDate>Fri, 13 Nov 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;h3 id="definition"&gt;Définition&lt;/h3&gt;
+&lt;p&gt;Le patron de conception &lt;strong&gt;template method&lt;/strong&gt; définit les &lt;em&gt;étapes d'exécution&lt;/em&gt; d'un algorithme.
+Certaines de ces étapes pouvant être implémentées dans des sous-classes pour permettre des comportements différents tout en garantissant le même ordre d'exécution.&lt;/p&gt;
+&lt;h3 id="exemple"&gt;Exemple&lt;/h3&gt;
+&lt;p&gt;Dans l'exemple ci-dessous, nous avons une société disposant de deux établissements : un &lt;em&gt;casino&lt;/em&gt; et un &lt;em&gt;restaurant&lt;/em&gt;.
+La création d'un nouveau compte sur l'un ou l'autre se matérialise par une &lt;strong&gt;succession d'étapes&lt;/strong&gt; :&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Vérification des informations&lt;/li&gt;
+&lt;li&gt;Enregistrement en base de données&lt;/li&gt;
+&lt;li&gt;Envoi d'un courriel de bienvenue&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Ces étapes doivent donc &lt;strong&gt;être executé dans le même ordre&lt;/strong&gt; quel que soit l'établissement, cependant chacun à sa façon de les implémenter.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Note : &lt;code&gt;SendEmail&lt;/code&gt; et &lt;code&gt;Store&lt;/code&gt; n'ont pas été implémentées dans les sous-classes pour aller à l'essentiel.&lt;/em&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// CustomerRegister abstract class
+/// &amp;lt;/summary&amp;gt;
+public abstract class CustomerRegister
+{
+    /// &amp;lt;summary&amp;gt;
+    /// Template method
+    /// &amp;lt;/summary&amp;gt;
+    public void Register(CustomerModel customer)
+    {
+        Check(customer);
+        Store(customer);
+        SendEmail(customer);
+    }
+
+    public abstract void Check(CustomerModel customer);
+    public abstract void Store(CustomerModel customer);
+    public abstract void SendEmail(CustomerModel customer);
+}
+
+/// &amp;lt;summary&amp;gt;
+/// CasinoCustomerRegister concrete class
+/// &amp;lt;/summary&amp;gt;
+public sealed class CasinoCustomerRegister : CustomerRegister
+{
+    public override void Check(CustomerModel customer)
+    {
+        CustomerCheckRules.CheckName(customer.FirstName);
+        CustomerCheckRules.CheckName(customer.LastName);
+        CustomerCheckRules.CheckAge(customer.Age, AgeRule.OfAge);
+        CustomerCheckRules.CheckSocialSecurityNumber(customer.SocialSecurityNumber);
+        CustomerCheckRules.CheckBlackList(customer.SocialSecurityNumber);
+        ...
+    }
+
+    public override void SendEmail(CustomerModel customer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Store(CustomerModel email)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// &amp;lt;summary&amp;gt;
+/// RestaurantCustomerRegister concrete class
+/// &amp;lt;/summary&amp;gt;
+public sealed class RestaurantCustomerRegister : CustomerRegister
+{
+    public override void Check(CustomerModel customer)
+    {
+        CustomerCheckRules.CheckName(customer.FirstName);
+        CustomerCheckRules.CheckName(customer.LastName);
+        ...
+        
+    }
+
+    public override void SendEmail(CustomerModel customer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Store(CustomerModel email)
+    {
+        throw new NotImplementedException();
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Ci dessous, nous nous attendons à ce que l'inscription du nouveau client soit &lt;strong&gt;rejeté&lt;/strong&gt;, du fait de son &lt;strong&gt;age&lt;/strong&gt; (&lt;code&gt;CheckAge(customer.Age, AgeRule.OfAge)&lt;/code&gt;).
+En revanche il lui est tout à fait permis de s'inscrire au restaurant.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;CustomerModel customer = new CustomerModel() 
+{ 
+    FirstName = &amp;quot;John&amp;quot;, 
+    LastName = &amp;quot;Doe&amp;quot;, 
+    Age = 17,
+    Email = &amp;quot;johndoe&amp;#64;email.tld&amp;quot; 
+};
+new CasinoCustomerRegister().Register(customer);
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Patrons de conception de type Factory</title>
+			<link>https://www.romainferrec.fr/posts/patrons-de-conception-de-type-factory</link>
+			<description>&lt;p&gt;Dans cet article, nous allons parcourir les trois types de &lt;em&gt;fabriques&lt;/em&gt; existante. En fonction du contexte et du besoin, elles ont pour principal objectif de réduire la &lt;strong&gt;duplication de code&lt;/strong&gt; :&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/patrons-de-conception-de-type-factory</guid>
+			<pubDate>Sun, 25 Oct 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;p&gt;Dans cet article, nous allons parcourir les trois types de &lt;em&gt;fabriques&lt;/em&gt; existante. En fonction du contexte et du besoin, elles ont pour principal objectif de réduire la &lt;strong&gt;duplication de code&lt;/strong&gt; :&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="#simple-factory"&gt;Simple factory&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#factory-method-pattern"&gt;Factory method pattern&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#abstract-factory-pattern"&gt;Abstract factory pattern&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Pour chacun de nos exemples, il s'agira de mettre en place une fabrique de création d'une instance de client ou serveur, HTTP ou FTP.&lt;/p&gt;
+&lt;h3 id="simple-factory"&gt;Simple Factory&lt;/h3&gt;
+&lt;p&gt;Son but est d'encapsuler la création d'objets à un seul endroit. Cependant il ne s'agit pas d'un patron de conception.&lt;/p&gt;
+&lt;p&gt;Dans l'exemple ci-dessous, nous disposons d'une &lt;strong&gt;fabrique&lt;/strong&gt; d'applications utilisant le protocole HTTP.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;public sealed class HttpApplicationFactory
+{
+    public static IClientServerApplication CreateHttpApplication(ApplicationType applicationtype)
+    {
+        switch(applicationtype)
+        {
+            case ApplicationType.Client:
+                return new HttpClient();
+            case ApplicationType.Server:
+                return new HttpServer();
+            default:
+                throw new ArgumentException($&amp;quot;Non managed application type {applicationType}&amp;quot;);
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Nous pouvons l'utiliser de la manière suivante :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;HttpApplicationFactory factory = new HttpApplicationFactory();
+IClientServerApplication application = factory.Create(ApplicationType.Client);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="factory-method-pattern"&gt;Factory method pattern&lt;/h3&gt;
+&lt;p&gt;Il permet la création d'objets, sans avoir à manipuler lors de l'utilisation, la classe concrète de l'objet qui sera créé.&lt;/p&gt;
+&lt;p&gt;Cela est possible en créant les objets à l'aide d'une &lt;strong&gt;méthode de fabrication (factory method)&lt;/strong&gt;, qui peut-être :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Soit spécifiée dans une interface et implémentée par les classes dépendantes&lt;/li&gt;
+&lt;li&gt;Soit implémentée dans une classe de base et surchargée par les classes filles.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;public abstract class TcpApplicationFactory
+{
+    // Factory method
+    public IClientServerApplication Create(ApplicationType type)
+    {
+        IClientServerApplication application;
+        switch(type)
+        {
+            case ApplicationType.Client:
+                application = CreateClient();
+                break;
+            case ApplicationType.Server:
+                application = CreateServer();
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        return application;
+    }
+
+    public abstract IClientServerApplication CreateClient();
+    public abstract IClientServerApplication CreateServer();
+}
+
+public sealed class HttpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        // Instanciation of HttpClient concrete class 
+        return new HttpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        // Instanciation of HttpServer concrete class
+        return new HttpServer();
+    }
+}
+
+public sealed class FtpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        return new FtpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        return new FtpServer();
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Ce qui permet à l'utilisation d'obtenir le code suivant dans le code appelant, et aucune mention de la classe concrète &lt;code&gt;FtpClient&lt;/code&gt; n'y est présente.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt; IClientServerApplication application = new FtpApplicationFactory().Create(ApplicationType.Client);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Comparé au &lt;strong&gt;Simple Factory&lt;/strong&gt;, cela permet repartir les logiques de création de chaque classe au lieu de les concentrer dans une seule et même méthode.&lt;/p&gt;
+&lt;h3 id="abstract-factory-pattern"&gt;Abstract factory pattern&lt;/h3&gt;
+&lt;p&gt;La fabrique abstraite fournit un moyen d'&lt;strong&gt;encapsuler un ensemble de fabrique&lt;/strong&gt; de la même thématique.&lt;/p&gt;
+&lt;p&gt;Le code client crée une instance concrète de la fabrique abstraite, puis l'utilise pour créer des objets concrets de la thématique&lt;/p&gt;
+&lt;p&gt;Le client ne se préoccupe pas de savoir quelle fabrique crée un objet concret, ni de quelle classe concrète est l'objet en question : il n'utilise que les interfaces génériques des objets produits.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Abstract factory
+/// &amp;lt;/summary&amp;gt;
+public abstract class TcpApplicationFactory
+{
+    public abstract IClientServerApplication CreateClient();
+    public abstract IClientServerApplication CreateServer();
+}
+
+#region Concretes factories
+public sealed class FtpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        return new FtpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        return new FtpServer();
+    }
+}
+
+public sealed class HttpApplicationFactory : TcpApplicationFactory
+{
+    public override IClientServerApplication CreateClient()
+    {
+        // Instanciation of HttpClient concrete class 
+        return new HttpClient();
+    }
+
+    public override IClientServerApplication CreateServer()
+    {
+        // Instanciation of HttpServer concrete class
+        return new HttpServer();
+    }
+}
+#endregion
+
+public sealed class Client
+{
+    private TcpApplicationFactory _factory { get; set; }
+    public Client(TcpApplicationFactory factory)
+    {
+        _factory = factory;
+    }
+
+    public IClientServerApplication Create(ApplicationType type)
+    {
+        IClientServerApplication application;
+        switch(type)
+        {
+            case ApplicationType.Client:
+                application = CreateClient();
+                break;
+            case ApplicationType.Server:
+                application = CreateServer();
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        return application;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Voici un exemple d'utilisation :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;IClientServerApplication application = new Client(new HttpApplicationFactory()).Create(ApplicationType.Client);
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Patron de conception Singleton</title>
+			<link>https://www.romainferrec.fr/posts/patron-de-conception-singleton</link>
+			<description>&lt;p&gt;Le patron de conception &lt;strong&gt;singleton&lt;/strong&gt; permet de s'assurer qu'&lt;strong&gt;une classe ne puisse être instanciée qu'une seule fois&lt;/strong&gt;, et donne un accès simple à cette instance.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/patron-de-conception-singleton</guid>
+			<pubDate>Tue, 08 Sep 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;h3 id="definition"&gt;Définition&lt;/h3&gt;
+&lt;p&gt;Le patron de conception &lt;strong&gt;singleton&lt;/strong&gt; permet de s'assurer qu'&lt;strong&gt;une classe ne puisse être instanciée qu'une seule fois&lt;/strong&gt;, et donne un accès simple à cette instance.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;public sealed class Singleton
+{
+    private static Singleton _instance;
+
+    // Empecher l'utilisation du constructeur par défaut
+    private Singleton() { }
+
+    public static Singleton Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = new Singleton();
+            }
+
+            return _instance;
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="exemple"&gt;Exemple&lt;/h3&gt;
+&lt;p&gt;Vérifions à présent que cette classe ne peut délivrer qu'une seule instance d'elle même.&lt;br /&gt;
+Notez que l'utilisation de &lt;code&gt;new Singleton()&lt;/code&gt; n'est plus possible.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;Singleton a = Singleton.Instance;
+Singleton b = Singleton.Instance;
+
+Console.WriteLine($&amp;quot;Les objets Singleton sont de la même instance ? : {a.Equals(b)}&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Après execution, nous obtenons bien le resultat escompté :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;Les objets Singleton sont de la même instance ? : True
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Implémenter les opérations CRUD dans une application API web Restful</title>
+			<link>https://www.romainferrec.fr/posts/implementer-les-operations-crud-dans-une-application-api-web</link>
+			<description>&lt;p&gt;Lorsque nous créons un projet d'application web API Restful, il est important de respecter un certain nombre de &lt;strong&gt;contraintes&lt;/strong&gt;.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/implementer-les-operations-crud-dans-une-application-api-web</guid>
+			<pubDate>Sat, 23 May 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;p&gt;Lorsque nous créons un projet d'application web API Restful, il est important de respecter un certain nombre de &lt;strong&gt;contraintes&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Nous allons partir d'un modèle de domaine &lt;code&gt;UserModel&lt;/code&gt; avec lequel nous dédierons un contrôleur &lt;code&gt;UsersController&lt;/code&gt; où nous implémenterons nos diverses actions &lt;a href="https://fr.wikipedia.org/wiki/CRUD"&gt;CRUD&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Les &lt;strong&gt;ressources&lt;/strong&gt; (données échangées entre client/serveur) seront &lt;strong&gt;représentées&lt;/strong&gt; (format de présentation) au format JSON.&lt;/p&gt;
+&lt;p&gt;Dans les actions de notre contrôleur, nous utilisons la logique de liaison de données (mapping), entre nos DTMs (Data Transfert Model) et notre modèle de domaine. Chaque opération à son propre DTM.&lt;/p&gt;
+&lt;p&gt;En outre chacune d'entre elles sera documenté à l'aide de Swagger.&lt;/p&gt;
+&lt;h3 id="implementation-du-controleur"&gt;Implémentation du contrôleur&lt;/h3&gt;
+&lt;p&gt;Le contrôleur regroupe un ensemble d'actions pour agir généralement sur une collection de données particulière.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Operations about users
+/// &amp;lt;/summary&amp;gt;
+[ApiController]
+[Route(&amp;quot;/api/[controller]&amp;quot;)]
+public class UsersController : ControllerBase
+{
+    private readonly IQueryRepository&amp;lt;UserModel&amp;gt; _userQueryRepository;
+    private readonly ICommandRepository&amp;lt;UserModel&amp;gt; _userCommandRepository;
+
+    public UsersController
+        (
+            IQueryRepository&amp;lt;UserModel&amp;gt; userQueryRepository,
+            ICommandRepository&amp;lt;UserModel&amp;gt; userCommandRepository
+        )
+    {
+        _userQueryRepository = userQueryRepository;
+        _userCommandRepository = userCommandRepository;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Passons en revue certains éléments :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;ControllerBase&lt;/code&gt; : Classe sur laquelle dérivent les contrôleurs de notre application. &lt;br /&gt;
+A ne pas confondre avec la classe &lt;code&gt;Controller&lt;/code&gt; qui hérite de &lt;code&gt;ControllerBase&lt;/code&gt; et ajoute la prise en charge des vues, servant aux applications ASP.NET MVC.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ApiController&lt;/code&gt; : Attribut permettant d'activer des comportements spécifiques, tel que :
+&lt;ul&gt;
+&lt;li&gt;Réponse &lt;code&gt;400 Bad Request&lt;/code&gt; en cas d'exception levée lors de l'exécution d'une action.&lt;/li&gt;
+&lt;li&gt;Attributs de source de liaison (&lt;code&gt;FromBody&lt;/code&gt;, &lt;code&gt;FromRoute&lt;/code&gt;...).&lt;/li&gt;
+&lt;li&gt;Obligation d'appliquer l'attribut &lt;code&gt;Route&lt;/code&gt; sur le contrôleur.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Route&lt;/code&gt; : Attribut permettant de lier un contrôleur à un &lt;em&gt;modèle de route&lt;/em&gt; (ici &lt;code&gt;/api/[controller]&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;UsersController&lt;/code&gt; : Classe de contrôleur de notre application, son constructeur sert à l'injection des dépendances nécessaires (classes de services). &lt;br/&gt;
+Son nom est soumis à deux contraintes :
+&lt;ul&gt;
+&lt;li&gt;Il est necesairement suffixé par &lt;code&gt;Controller&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Il doit necessairement prendre le pluriel.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="implementation-des-actions"&gt;Implémentation des actions&lt;/h3&gt;
+&lt;h4 id="lecture"&gt;Lecture&lt;/h4&gt;
+&lt;p&gt;Le verbe HTTP &lt;code&gt;GET&lt;/code&gt; sert à l'obtention de ressources.&lt;/p&gt;
+&lt;p&gt;Nous pouvons exposer les données liées à notre modèle par les deux points de terminaisons ci-dessous :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Get a single user
+/// &amp;lt;/summary&amp;gt;
+/// &amp;lt;param name=&amp;quot;id&amp;quot;&amp;gt;User identifier&amp;lt;/param&amp;gt;
+/// &amp;lt;response code=&amp;quot;200&amp;quot;&amp;gt;The matching user&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;404&amp;quot;&amp;gt;Requested user was not found&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;400&amp;quot;&amp;gt;Request cannot be completed, check output for more details&amp;lt;/response&amp;gt;
+[HttpGet(&amp;quot;{id}&amp;quot;)]
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult GetAsync(int id)
+{
+    UserModel user = await _userQueryRepository.GetAsync(id);
+
+    if(user == null)
+        return NotFound(NotFoundStrings.EntityNotFound(id));
+    
+    return Ok(new UserGetDto(user));
+}
+
+/// &amp;lt;summary&amp;gt;
+/// Get all available users
+/// &amp;lt;/summary&amp;gt;
+/// &amp;lt;response code=&amp;quot;200&amp;quot;&amp;gt;Collection of users&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;400&amp;quot;&amp;gt;Request cannot be completed, check output for more details&amp;lt;/response&amp;gt;
+[HttpGet]
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult GetAsync()
+{
+    IEnumerable&amp;lt;UserGetDto&amp;gt; users = await _userQueryRepository.GetAsync();
+    return Ok(users.Select(m =&amp;gt; new UserGetDto(m));
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="creation"&gt;Création&lt;/h4&gt;
+&lt;p&gt;Le verbe HTTP &lt;code&gt;POST&lt;/code&gt; sert à la création de nouvelles ressources.&lt;/p&gt;
+&lt;p&gt;En cas de succès, nous renvoyons le statut &lt;code&gt;201 Created&lt;/code&gt; et renseignons l'entête HTTP &lt;code&gt;location&lt;/code&gt; par l'&lt;strong&gt;URI&lt;/strong&gt; vers la ressource créée (ref : &lt;a href="https://tools.ietf.org/html/rfc2616#section-9.5"&gt;RFC2616&lt;/a&gt;).&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Create a new user
+/// &amp;lt;/summary&amp;gt;
+/// &amp;lt;param name=&amp;quot;dto&amp;quot;&amp;gt;User informations&amp;lt;/param&amp;gt;
+/// &amp;lt;response code=&amp;quot;201&amp;quot;&amp;gt;User has been created successfuly&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;400&amp;quot;&amp;gt;Request cannot be completed, check output for more details&amp;lt;/response&amp;gt;
+[HttpPost]
+[ProducesResponseType(StatusCodes.Status201Created)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult PostAsync(UserPostDto dto)
+{
+    UserModel model = dto.ToModel();
+    model = await _userCommandRepository.CreateAsync(model);
+    return CreatedAtAction(nameof(Get), new { id = model.Id }, new UserGetDto(model));
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="mise-a-jour"&gt;Mise à jour&lt;/h4&gt;
+&lt;p&gt;Le verbe HTTP &lt;code&gt;PUT&lt;/code&gt; sert à la modification complète de ressources.&lt;/p&gt;
+&lt;p&gt;Si nous souhaitons ne modifier qu'une seule propriété nous devons tout de même renseigner les autres car sinon elles seront remplies avec des valeurs par défaut.&lt;/p&gt;
+&lt;p&gt;En cas de succès, il est recommandé de renvoyer un corps de réponse vide avec le code HTTP &lt;code&gt;204 No Content&lt;/code&gt;. Si toutefois nous devions retourner des informations alors nous utiliserions le code HTTP &lt;code&gt;200 Ok&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Update an existing user
+/// &amp;lt;/summary&amp;gt;
+/// &amp;lt;param name=&amp;quot;dto&amp;quot;&amp;gt;User informations&amp;lt;/param&amp;gt;
+/// &amp;lt;param name=&amp;quot;id&amp;quot;&amp;gt;User identifier&amp;lt;/param&amp;gt;
+/// &amp;lt;response code=&amp;quot;201&amp;quot;&amp;gt;User has been updated successfuly&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;404&amp;quot;&amp;gt;Requested user was not found&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;400&amp;quot;&amp;gt;Request cannot be completed, check output for more details&amp;lt;/response&amp;gt;
+[HttpPut(&amp;quot;{id}&amp;quot;})]
+[ProducesResponseType(StatusCodes.Status204NoContent)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult PutAsync(int id, UserPostDto dto)
+{
+    if(user == null)
+        return NotFound(NotFoundStrings.EntityNotFound(id));
+    UserModel model = dto.ToModel();
+    model = await _userCommandRepository.Update(model);
+    return CreatedAtAction(nameof(Get), new { id = model.Id }, new UserGetDto(model));
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id="suppression"&gt;Suppression&lt;/h4&gt;
+&lt;p&gt;Le verbe HTTP &lt;code&gt;DELETE&lt;/code&gt; sert à la suppression de ressources existantes.&lt;/p&gt;
+&lt;p&gt;En cas de succès, il est recommandé de renvoyer un corps de réponse vide avec le code HTTP &lt;code&gt;204 No Content&lt;/code&gt;. Si toutefois nous devions retourner des informations alors nous utiliserions le code HTTP &lt;code&gt;200 Ok&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Delete an existing user
+/// &amp;lt;/summary&amp;gt;
+/// &amp;lt;param name=&amp;quot;id&amp;quot;&amp;gt;User identifier&amp;lt;/param&amp;gt;
+/// &amp;lt;response code=&amp;quot;204&amp;quot;&amp;gt;User has been deleted successfuly&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;404&amp;quot;&amp;gt;Requested user was not found&amp;lt;/response&amp;gt;
+/// &amp;lt;response code=&amp;quot;400&amp;quot;&amp;gt;Request cannot be completed, check output for more details&amp;lt;/response&amp;gt;
+[HttpDelete(&amp;quot;{id}&amp;quot;)]
+[ProducesResponseType(StatusCodes.Status204NoContent)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async IActionResult DeleteAsync(int id)
+{
+    UserModel user = await _userQueryRepository.GetAsync(id);
+
+    if(user == null)
+        return NotFound(NotFoundStrings.EntityNotFound(id));
+    
+    await _userQueryRepository.DeleteAsync(id);
+    return NoContent();
+}
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Utiliser la validation de modèle d'ASP</title>
+			<link>https://www.romainferrec.fr/posts/utiliser-la-validation-de-modele-asp</link>
+			<description>&lt;p&gt;Dans une application Web, il est &lt;strong&gt;primordial&lt;/strong&gt; de vérifier les informations soumise par le client vers le serveur, afin de satisfaire les &lt;strong&gt;exigences métier&lt;/strong&gt; et garantir la &lt;strong&gt;cohérence des données&lt;/strong&gt;.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/utiliser-la-validation-de-modele-asp</guid>
+			<pubDate>Fri, 15 May 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;p&gt;Dans une application Web, il est &lt;strong&gt;primordial&lt;/strong&gt; de vérifier les informations soumise par le client vers le serveur, afin de satisfaire les &lt;strong&gt;exigences métier&lt;/strong&gt; et garantir la &lt;strong&gt;cohérence des données&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Le &lt;strong&gt;framework ASP&lt;/strong&gt; dispose de son propre système de validation. Dans la pipeline d'execution d'une requête HTTP, celui ci est executé après la &lt;a href="https://docs.microsoft.com/fr-fr/aspnet/core/mvc/models/model-binding"&gt;liaison de données&lt;/a&gt; et avant l'action d'un contrôleur.&lt;/p&gt;
+&lt;h3 id="validation-de-propriete"&gt;Validation de propriété&lt;/h3&gt;
+&lt;p&gt;Pour effectuer une validation sur une propriété, nous utilisons les &lt;strong&gt;attributs de validations&lt;/strong&gt;.  &lt;a href="https://docs.microsoft.com/fr-fr/dotnet/api/system.componentmodel.dataannotations"&gt;Parmi ceux disponible dans .NET&lt;/a&gt;, en voici quelques-uns fréquement utilisés :&lt;/p&gt;
+&lt;table class="table"&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Nom&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;th&gt;Exemple&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Required&lt;/td&gt;
+&lt;td&gt;La valeur est requise&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;[Required]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;StringLength&lt;/td&gt;
+&lt;td&gt;La longueur de chaîne est limité à &lt;em&gt;n&lt;/em&gt; caractères&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;[StringLength(20)]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Range&lt;/td&gt;
+&lt;td&gt;La valeur doit être comprise dans l'intervalle&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;[Range(1, int.MaxValue)]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;RegularExpression&lt;/td&gt;
+&lt;td&gt;La valeur doit satisfaire l'expression régulière&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;[RegularExpression(&amp;#64;&amp;quot;[A-Za-z0-9]+&amp;quot;)&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;MinLength et MaxLength&lt;/td&gt;
+&lt;td&gt;La valeur doit être au moins ou au plus égale à &lt;em&gt;n&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;[MinLength(4)]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Prenons un exemple, et définissons un modèle de transfert pour un utilisateur souhaitant mettre à jour ses informations :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;public class User
+{
+    [Required]
+    public string FirstName { get; set; }
+    [Required]
+    public string LastName { get; set; }
+    [Phone, Required]
+    public string CellPhone { get; set; }
+    [Phone]
+    public string HomePhone { get; set; }
+    [Required]
+    public DateTime BirthDay { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Une fois l'application lancée, nous lui soumettons le corps de requête suivant :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-json"&gt;{
+  &amp;quot;firstName&amp;quot;: &amp;quot;&amp;quot;,
+  &amp;quot;lastName&amp;quot;: &amp;quot;&amp;quot;,
+  &amp;quot;homePhone&amp;quot;: &amp;quot;toto&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;En retour nous obtenons la réponse :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-json"&gt;{
+  &amp;quot;type&amp;quot;: &amp;quot;https://tools.ietf.org/html/rfc7231#section-6.5.1&amp;quot;,
+  &amp;quot;title&amp;quot;: &amp;quot;One or more validation errors occurred.&amp;quot;,
+  &amp;quot;status&amp;quot;: 400,
+  &amp;quot;traceId&amp;quot;: &amp;quot;|5679ad87-4b71d1b069bc6745.&amp;quot;,
+  &amp;quot;errors&amp;quot;: {
+    &amp;quot;LastName&amp;quot;: [
+      &amp;quot;The LastName field is required.&amp;quot;
+    ],
+    &amp;quot;CellPhone&amp;quot;: [
+      &amp;quot;The CellPhone field is required.&amp;quot;
+    ],
+    &amp;quot;FirstName&amp;quot;: [
+      &amp;quot;The FirstName field is required.&amp;quot;
+    ],
+    &amp;quot;HomePhone&amp;quot;: [
+      &amp;quot;The HomePhone field is not a valid phone number.&amp;quot;
+    ]
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Nous pouvons remarquer que le champs &lt;code&gt;BirthDay&lt;/code&gt; a passé la validation, et ce bien que nous lui ayons appliqué l'attribut &lt;code&gt;[Required]&lt;/code&gt; mais pas fournit de valeur.&lt;/p&gt;
+&lt;p&gt;Ceci est du au fait que &lt;code&gt;DateTime&lt;/code&gt; est un &lt;a href="https://docs.microsoft.com/fr-fr/dotnet/csharp/language-reference/builtin-types/value-types"&gt;type valeur&lt;/a&gt;et donc qu'il aura forcément une valeur par défaut lors de la création du modèle. Voila pourquoi l'information n'est pas considérée comme &lt;em&gt;manquante&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Un solution consiste à rendre le champs nullable&lt;/p&gt;
+&lt;h3 id="validation-de-classe"&gt;Validation de classe&lt;/h3&gt;
+&lt;p&gt;En reutilisant notre modèle &lt;code&gt;User&lt;/code&gt;, nous souhaitons exprimer le fait qu'au moins un numéro de téléphone valide soit renseigné.&lt;/p&gt;
+&lt;p&gt;Comme cette logique de validation implique &lt;strong&gt;plus d'une propriété&lt;/strong&gt;, nous ne pouvons nous servir des attributs de validations.&lt;/p&gt;
+&lt;p&gt;Au lieu de cela, nous allons utiliser l'interface &lt;a href="https://docs.microsoft.com/fr-fr/dotnet/api/system.componentmodel.dataannotations.ivalidatableobject"&gt;IValidatableObject&lt;/a&gt; et l'implémenter de la manière suivante sur notre modèle :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;public class User : IValidatableObject
+{
+  ...
+    public IEnumerable&amp;lt;ValidationResult&amp;gt; Validate(ValidationContext validationContext)
+    {        
+        if(HomePhone == null &amp;amp;&amp;amp; CellPhone == null)
+        {
+            yield return new ValidationResult(&amp;quot;At least one phone number is required&amp;quot;, new [] {nameof(HomePhone), nameof(CellPhone)});
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;En soumettons la requête :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-json"&gt;{
+  &amp;quot;firstName&amp;quot;: &amp;quot;Jean&amp;quot;,
+  &amp;quot;lastName&amp;quot;: &amp;quot;Dupont&amp;quot;,
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Nous obtenons la réponse attendue :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-json"&gt;{
+  &amp;quot;type&amp;quot;: &amp;quot;https://tools.ietf.org/html/rfc7231#section-6.5.1&amp;quot;,
+  &amp;quot;title&amp;quot;: &amp;quot;One or more validation errors occurred.&amp;quot;,
+  &amp;quot;status&amp;quot;: 400,
+  &amp;quot;traceId&amp;quot;: &amp;quot;|8a63c595-4030754928e01558.&amp;quot;,
+  &amp;quot;errors&amp;quot;: {
+    &amp;quot;CellPhone&amp;quot;: [
+      &amp;quot;At least one phone number is required&amp;quot;
+    ],
+    &amp;quot;HomePhone&amp;quot;: [
+      &amp;quot;At least one phone number is required&amp;quot;
+    ]
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="definir-ses-propres-attributs-de-validations"&gt;Définir ses propres attributs de validations&lt;/h3&gt;
+&lt;p&gt;Il est fort probable au cours du développement de notre application webAPI que nous ayons besoin d'avantages de logique de validations de propriété.&lt;/p&gt;
+&lt;p&gt;Pour ce faire, nous pouvons concevoirs nos propres classes héritant de &lt;code&gt;ValidationAttribute&lt;/code&gt;, qui seront utilisés comme &lt;strong&gt;attributs&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Voici quelques exemples assez parlant :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System;
+
+/// &amp;lt;summary&amp;gt;
+/// Require the value is not null or the enumeration empty.
+/// &amp;lt;/summary&amp;gt;
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
+public sealed class NotNullOrEmptyEnumerable : ValidationAttribute
+{
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        string error = $&amp;quot;'{validationContext.MemberName}' cannot be null or empty&amp;quot;;
+
+        IEnumerable enumerable = value as IEnumerable;
+
+        if (enumerable != null &amp;amp;&amp;amp; enumerable.GetEnumerator().MoveNext())
+        {
+            return ValidationResult.Success;
+        }
+        
+        return new ValidationResult(error);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
+/// &amp;lt;summary&amp;gt;
+/// Require the value is not null or the enumeration does not contains duplicate integer
+/// &amp;lt;/summary&amp;gt;
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
+public class NoDuplicateInteger : ValidationAttribute
+{
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        var collection = value as ICollection&amp;lt;int&amp;gt;;
+        if (collection == null)
+            return new ValidationResult($&amp;quot;Parameter '{validationContext.MemberName}' is not a collection of integers&amp;quot;);
+        if (collection.Count == collection.Distinct().Count())
+        {
+            return ValidationResult.Success;
+        }
+        return new ValidationResult($&amp;quot;List '{validationContext.MemberName}' must not contains duplicated integers.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Documenter ses APIs avec Swagger</title>
+			<link>https://www.romainferrec.fr/posts/documenter-ses-apis-avec-swagger</link>
+			<description>&lt;p&gt;Swagger est une collection d'outils permettant de concevoir, générer et &lt;strong&gt;documenter&lt;/strong&gt; des API REST. Il respose sur la spécification &lt;em&gt;OpenAPI&lt;/em&gt; et est implémenté en ASP.NET Core à travers &lt;em&gt;SwashBuckle&lt;/em&gt;.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/documenter-ses-apis-avec-swagger</guid>
+			<pubDate>Wed, 06 May 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;p&gt;Swagger est une collection d'outils permettant de concevoir, générer et &lt;strong&gt;documenter&lt;/strong&gt; des API REST. Il respose sur la spécification &lt;em&gt;OpenAPI&lt;/em&gt; et est implémenté en ASP.NET Core à travers &lt;em&gt;SwashBuckle&lt;/em&gt;.&lt;/p&gt;
+&lt;h3 id="installer-et-configurer-swashbuckle"&gt;Installer et configurer SwashBuckle&lt;/h3&gt;
+&lt;p&gt;Installons le paquet nuget &lt;a href="https://www.nuget.org/packages/Swashbuckle.AspNetCore/"&gt;Swashbuckle.AspNetCore&lt;/a&gt; dans le projet d'application Web API que nous souhaitons documenter.&lt;/p&gt;
+&lt;p&gt;Ensuite dans le fichier &lt;code&gt;startup.cs&lt;/code&gt;, ajoutons dans la collection de services (méthode &lt;code&gt;ConfigureService&lt;/code&gt;) le générateur Swagger :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;services.AddSwaggerGen(c =&amp;gt;
+{
+    c.SwaggerDoc(&amp;quot;v1.0&amp;quot;, new OpenApiInfo { Title = &amp;quot;Mon application WebAPI&amp;quot;, Version = &amp;quot;v1.0&amp;quot; });
+
+    // Indiquer à Swagger l'emplacement de la documentation XML.
+    var xmlFile = $&amp;quot;{Assembly.GetExecutingAssembly().GetName().Name}.xml&amp;quot;;
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Puis activons les intergiciels (méthode &lt;code&gt;Configure&lt;/code&gt;) pour dans l'ordre :&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Servir le point de terminaison Swagger contenant la spécification OpenAPI au format JSON.&lt;/li&gt;
+&lt;li&gt;Servir l'application web Swagger UI.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;app.UseSwagger();
+app.UseSwaggerUI(c =&amp;gt;
+{
+    c.SwaggerEndpoint(&amp;quot;/swagger/v1/swagger.json&amp;quot;, &amp;quot;Mon application WebAPI v1.0&amp;quot;);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Enfin dans le fichier de configuration du projet, nous souhaitons pouvoir générer le fichier &lt;code&gt;/bin/&amp;lt;NomDuProjet&amp;gt;.xml&lt;/code&gt; contenant l'ensemble de la documentation XML et ne pas être averti des membres publiques non documentés&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-xml"&gt;&amp;lt;PropertyGroup&amp;gt;
+    &amp;lt;TargetFramework&amp;gt;netcoreapp3.1&amp;lt;/TargetFramework&amp;gt;
+    &amp;lt;GenerateDocumentationFile&amp;gt;true&amp;lt;/GenerateDocumentationFile&amp;gt;
+    &amp;lt;NoWarn&amp;gt;CS1591&amp;lt;/NoWarn&amp;gt;
+&amp;lt;/PropertyGroup&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A présent si nous démarrons notre projet, et que nous souhaitons accéder à l'adresse &lt;code&gt;/swagger/v1/swagger.json&lt;/code&gt; précedemment définie, nous obtiendrons la spécification OpenAPI courante de notre application.&lt;/p&gt;
+&lt;h3 id="documenter-ses-points-de-terminaisons"&gt;Documenter ses points de terminaisons&lt;/h3&gt;
+&lt;p&gt;Dans le contrôleur d'exemple ci dessous, un jeu d'attributs et de commentaires XML ont été utilisés afin de le documenter ainsi que son point de terminaison&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-csharp"&gt;/// &amp;lt;summary&amp;gt;
+/// Operations about felines
+/// &amp;lt;/summary&amp;gt;
+[ApiController]
+[Route(&amp;quot;[controller]&amp;quot;)]
+[Produces(MediaTypeNames.Application.Json)]
+public class FelinesController : ControllerBase
+{
+    /// &amp;lt;summary&amp;gt;
+    /// Get felines that match the pattern
+    /// &amp;lt;/summary&amp;gt;
+    /// &amp;lt;param name=&amp;quot;pattern&amp;quot;&amp;gt;Search pattern &amp;lt;/param&amp;gt;
+    /// &amp;lt;response code=&amp;quot;200&amp;quot;&amp;gt;Returns the matching felines&amp;lt;/response&amp;gt;
+    /// &amp;lt;response code=&amp;quot;400&amp;quot;&amp;gt;Request cannot be completed, check output for more details&amp;lt;/response&amp;gt;
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet(&amp;quot;contains/{pattern}&amp;quot;)]
+    public IEnumerable&amp;lt;string&amp;gt; Search([Required, StringLength(5)] string pattern)
+    {
+        var words = new List&amp;lt;string&amp;gt;() {&amp;quot;Tigre&amp;quot;, &amp;quot;Guépard&amp;quot;, &amp;quot;Jaguar&amp;quot;};
+        return words.Where(p =&amp;gt; p.Contains(pattern));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A partir du code précedent, &lt;strong&gt;SwaggerUI&lt;/strong&gt; sera en mesure de nous founir la documentation suivante à l'adresse &lt;code&gt;/swagger/index.html&lt;/code&gt; :&lt;/p&gt;
+&lt;p&gt;&lt;img src="/media/development/swagger/swagger-ui.png" class="img-fluid" alt="Documentation de l'API via Swagger UI" /&gt;&lt;/p&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Gérer ses processus en cours sous Windows avec CMD</title>
+			<link>https://www.romainferrec.fr/posts/gerer-ses-processus-en-cours-sous-windows-avec-cmd</link>
+			<description>&lt;p&gt;Nous allons voir quelques commandes indispensables pour gérer les différentes applications et processus en cours sous Windows avec l'invite de commande, au lieu de passer par le traditionnel &lt;em&gt;Gestionnaire des tâches&lt;/em&gt;.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/gerer-ses-processus-en-cours-sous-windows-avec-cmd</guid>
+			<pubDate>Sat, 28 Mar 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;p&gt;Nous allons voir quelques commandes indispensables pour gérer les différentes applications et processus en cours sous Windows avec l'invite de commande, au lieu de passer par le traditionnel &lt;em&gt;Gestionnaire des tâches&lt;/em&gt;.&lt;/p&gt;
+&lt;h3 id="lister-filtrer-et-trier-les-taches-en-cours-dexecution"&gt;Lister, filtrer et trier les tâches en cours d'exécution&lt;/h3&gt;
+&lt;p&gt;La commande &lt;code&gt;tasklist&lt;/code&gt; nous permet d'obtenir la plupart des informations sur les tâches en cours d'exécutions.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;C:\&amp;gt;tasklist
+
+Nom de l’image                 PID Nom de la sessio Numéro de s Utilisation
+========================= ======== ================ =========== ============
+System Idle Process              0 Services                   0         8 Ko
+System                           4 Services                   0     6 736 Ko
+Registry                       104 Services                   0    21 608 Ko
+smss.exe                       388 Services                   0       352 Ko
+csrss.exe                      580 Services                   0     2 304 Ko
+wininit.exe                    656 Services                   0     1 004 Ko
+services.exe                   728 Services                   0     6 564 Ko
+lsass.exe                      820 Services                   0    14 440 Ko
+svchost.exe                    932 Services                   0     1 124 Ko
+fontdrvhost.exe                952 Services                   0       460 Ko
+svchost.exe                    968 Services                   0    20 636 Ko
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Il est possible d'y coupler la commande &lt;code&gt;find&lt;/code&gt; afin d'y filtrer les éléments qui nous intéresses :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;C:\&amp;gt;tasklist | find &amp;quot;msedge&amp;quot;
+msedge.exe                   12984 Console                    5   117 536 Ko
+msedge.exe                   10576 Console                    5     2 140 Ko
+msedge.exe                   11988 Console                    5     1 344 Ko
+msedge.exe                   12832 Console                    5   108 476 Ko
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;De plus avec la commande &lt;code&gt;sort&lt;/code&gt;, nous pouvons trier la sortie, ci-dessous selon la mémoire occupée, par ordre décroissant.&lt;/p&gt;
+&lt;p&gt;Petit rappel sur les paramètres de la commande sort :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;/r&lt;/code&gt; : permet d'avoir un ordre de trie descendant.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/+n&lt;/code&gt; : où n spécifie la position du caractère où effectuer le tri. Ici &lt;strong&gt;64&lt;/strong&gt; correspond, mais cela peut différer selon votre sortie.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;C:\&amp;gt;tasklist | find &amp;quot;msedge&amp;quot; | sort /r /+64
+Nom de l'image                 PID Nom de la sessio Numéro de s Utilisation
+========================= ======== ================ =========== ============
+msedge.exe                    1924 Console                    5   147 532 Ko
+msedge.exe                   12832 Console                    5   127 128 Ko
+msedge.exe                   12984 Console                    5   121 928 Ko
+msedge.exe                    6692 Console                    5    81 464 Ko
+msedge.exe                   11832 Console                    5    61 856 Ko
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;La commande &lt;code&gt;tasklist&lt;/code&gt; comporte de nombreux &lt;em&gt;filtres&lt;/em&gt; que vous pouvez utiliser, en fonction de vos besoins. Ici nous n'allons retenir que les instances de Microsoft Edge occupant plus de 100 Mo de mémoire vive.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;C:\&amp;gt;tasklist /fi &amp;quot;memusage gt 100000&amp;quot; | find &amp;quot;msedge&amp;quot; | sort /r /+58
+msedge.exe                    1924 Console                    5   146 712 Ko
+msedge.exe                   12832 Console                    5   131 840 Ko
+msedge.exe                   12984 Console                    5   121 980 Ko
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notez que nous préférons utiliser la commande &lt;code&gt;find&lt;/code&gt; plutôt que le filtre &lt;em&gt;imagename&lt;/em&gt;. Ce dernier implique d'écrire le nom complet du processus, n'ayant que l'égalité comme opérateur de comparaison.&lt;/p&gt;
+&lt;h3 id="arreter-les-taches-en-cours-dexecution"&gt;Arrêter les tâches en cours d'exécution&lt;/h3&gt;
+&lt;p&gt;Maintenant que nous connaissons les fondamentaux concernant l'affichage des informations sur les processus, voyons comment arrêter l'exécution de l'un ou plusieurs d'entre eux, avec la commande &lt;code&gt;taskkill&lt;/code&gt;.&lt;/p&gt;
+&lt;h4 id="arreter-un-processus-particulier-a-laide-de-son-identifiant-pid"&gt;Arreter un processus particulier à l'aide de son identifiant (PID).&lt;/h4&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;C:\&amp;gt;tasklist /fi &amp;quot;pid eq 1360&amp;quot;
+
+Nom de l’image                 PID Nom de la sessio Numéro de s Utilisation
+========================= ======== ================ =========== ============
+msedge.exe                    1360 Console                    2   115 164 Ko
+
+C:\&amp;gt;taskkill /pid 5380
+Opération réussie : un signal de fin a été envoyé au processus de PID 5380.
+
+C:\&amp;gt;tasklist /fi &amp;quot;pid eq 5380&amp;quot;
+Information : aucune tâche en service ne correspond aux critères spécifiés.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notez que le paramètre &lt;code&gt;/pid&lt;/code&gt; peut être repété autant de fois que vous avez de processus particulier a fermer.&lt;/p&gt;
+&lt;h4 id="arreter-un-ensemble-de-processus-a-laide-de-leur-nom-commun"&gt;Arrêter un ensemble de processus à l'aide de leur nom commun.&lt;/h4&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;C:\&amp;gt;tasklist | find &amp;quot;notepad&amp;quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+
+C:\&amp;gt;taskkill /im &amp;quot;notepad*&amp;quot;
+Opération réussie : un signal de fin a été envoyé au processus &amp;quot;notepad.exe&amp;quot; de PID 468.
+Opération réussie : un signal de fin a été envoyé au processus &amp;quot;notepad.exe&amp;quot; de PID 2640.
+
+C:\&amp;gt;tasklist | find &amp;quot;notepad&amp;quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Les deux instances de notepad que nous avons souhaité fermer sont toujours actif, car seul un &lt;strong&gt;signal de fin&lt;/strong&gt; a été envoyé au processus.&lt;/p&gt;
+&lt;p&gt;Si nous savons ce que nous faisons, et que nous souhaitons passer outre ce comportement, vous pouvez &lt;strong&gt;forcer&lt;/strong&gt; l'extinction (on parle également de tuer un processus), à l'aide du paramètre &lt;code&gt;/f&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-console"&gt;C:\&amp;gt;tasklist | find &amp;quot;notepad&amp;quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+
+C:\&amp;gt;taskkill /im &amp;quot;notepad*&amp;quot; /f
+Opération réussie : le processus &amp;quot;notepad.exe&amp;quot; de PID 468 a été arrêté.
+Opération réussie : le processus &amp;quot;notepad.exe&amp;quot; de PID 2640 a été arrêté.
+
+C:\&amp;gt;tasklist | find &amp;quot;notepad&amp;quot;
+notepad.exe                    468 Console                    2    13 528 Ko
+notepad.exe                   2640 Console                    2    13 524 Ko
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded>
+		</item>
+		<item>
+			<title>Forcer la désinstallation d'applications sous Windows 10</title>
+			<link>https://www.romainferrec.fr/posts/forcer-la-desinstallation-dapplication-sous-windows-10</link>
+			<description>&lt;p&gt;Depuis l'arrivée de Windows 10, nous pouvons profiter des &lt;strong&gt;applications universelles&lt;/strong&gt;,
+téléchargeables depuis le &lt;a href="https://www.microsoft.com/fr-fr/store/apps/windows"&gt;Microsoft Store&lt;/a&gt;.&lt;/p&gt;</description>
+			<guid>https://www.romainferrec.fr/posts/forcer-la-desinstallation-dapplication-sous-windows-10</guid>
+			<pubDate>Wed, 19 Feb 2020 00:00:00 GMT</pubDate>
+			<content:encoded>&lt;p&gt;Depuis l'arrivée de Windows 10, nous pouvons profiter des &lt;strong&gt;applications universelles&lt;/strong&gt;,
+téléchargeables depuis le &lt;a href="https://www.microsoft.com/fr-fr/store/apps/windows"&gt;Microsoft Store&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Une gamme d'application nous est proposée par défaut tel que &lt;em&gt;Cartes&lt;/em&gt;, &lt;em&gt;Enregistreur Vocal&lt;/em&gt; ou
+encore &lt;em&gt;Photos&lt;/em&gt;.
+Cela dit, quel intérêt de disposer d'un logiciel d'édition vidéo si nous n'avons aucun
+besoin particulier en la matière ? Comment faire pour se séparer des applications inutiles ?&lt;/p&gt;
+&lt;p&gt;Tout d'abord, nous allons commencer par récupérer la liste des applications installées sur le
+système. Ouvrons une session &lt;strong&gt;Powershell&lt;/strong&gt;, et saisissons la commande suivante :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-powershell"&gt;Get-AppxPackage | select Name
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Dans la liste des résultats, nous cherchons le &lt;strong&gt;nom de code&lt;/strong&gt; de l'application à désinstaller
+(dans notre exemple &lt;code&gt;Microsoft.ZuneVideo&lt;/code&gt; qui correspond à &lt;em&gt;Films et TV&lt;/em&gt;).&lt;/p&gt;
+&lt;p&gt;Il nous suffit ensuite d'exécuter la commande :&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-powershell"&gt;Get-AppxPackage Microsoft.ZuneVIdeo | Remove-AppxPackage
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Une barre de progression apparait en haut du terminal, nous indiquant la progression de la désinstallation.&lt;/p&gt;
+&lt;p&gt;Si nous souhaitons la réinstaller ultérieurement, cela est possible en recherchant le nom de l'application depuis &lt;strong&gt;Microsoft Store&lt;/strong&gt;.&lt;/p&gt;
+</content:encoded>
+		</item>
+	</channel>
+</rss>
